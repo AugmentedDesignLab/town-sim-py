@@ -6,15 +6,17 @@ class RoadSegment:
 		self.rnode2 = None
 		self.type = direction.type
 		self.shape = []
-		self.find_next_rnode(direction, turns, roadnodes, roads_no_replace)
 
-	def find_next_rnode(self, direction, turns, roadnodes, roads_no_replace):
+		if direction not in roads_no_replace:
+			return
+
 		check = [direction]
+
 		print("finding next rnode")
 		while len(check) > 0:
 			check_ = check[0]
 			if check_ in turns:
-				self.shape.append(check_)
+				self.shape.append((check_.x, check_.y))
 			elif check_ in roadnodes and check_ is not self.rnode1:
 				self.rnode2 = check_
 				return

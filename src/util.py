@@ -105,3 +105,32 @@ def check_turn_and_endpoint(node, roads, turns, roadnodes):
 	else:
 		# if point has 1 or 3+ road-neighbors, it is an endpoint/junction	
 		roadnodes.add(node)
+
+def update_adjacents(old_node, new_node, adjacents):
+	new_node.adjacent.update(adjacents)
+	old_node.adjacent = old_node.adjacent - adjacents
+	for n in adjacents:
+		n.adjacent.add(new_node)
+		n.adjacent.discard(old_node)
+
+def check_overlapping_nodes(nodes):
+	nodes_final = set([node for node in nodes])
+	
+	for node in nodes:
+		if node in nodes_final:
+			print("check overlap")
+			check = node.adjacent.copy()
+			while len(check) > 0:
+				n = check.pop()
+				if n in nodes_final:
+					print("found overlap")
+					nodes_final.remove(n)
+					new_adjacents = n.adjacent - node.adjacent
+					new_adjacents.discard(node)
+					
+					update_adjacents(n, node, new_adjacents)
+					node.adjacent.discard(n)
+
+					check.update(new_adjacents)
+	
+	return nodes_final
