@@ -15,7 +15,7 @@ class RoadSegment:
 		print("finding next rnode")
 		while len(check) > 0:
 			check_ = check[0]
-			if check_ in turns:
+			if (check_.x, check_.y) in turns:
 				self.shape.append((check_.x, check_.y))
 			elif check_ in roadnodes and check_ is not self.rnode1:
 				self.rnode2 = check_

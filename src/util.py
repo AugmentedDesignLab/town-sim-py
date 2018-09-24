@@ -67,7 +67,7 @@ def get_line(start, end):
 def get_pt_avg(points):
 	x = sum(x for (x, y) in points) / len(points)
 	y = sum(y for (x, y) in points) / len(points)
-	return (int(x), int(y))
+	return (x, y)
 
 def check_turn_and_endpoint(node, roads, turns, roadnodes):
 	neighbors = list(node.adjacent & set(roads))
@@ -91,6 +91,7 @@ def check_turn_and_endpoint(node, roads, turns, roadnodes):
 				print("Unexpected node type.")
 
 			turns.add((node.x, node.y))
+			print("found turn")
 
 			'''
 			# if neighbors of point are the same type

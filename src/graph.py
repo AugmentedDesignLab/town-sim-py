@@ -1,8 +1,10 @@
 import copy
 import cv2
+from multiprocessing import Queue, Process
 import numpy as np
 from PIL import Image, ImageTk
-from tkinter import Tk, Label
+import time
+from tkinter import Tk, Label, Button
 
 from agent import Agent
 from landscape import Landscape
@@ -10,10 +12,10 @@ from lot import Lot
 import mapgen
 
 class Simulation:
-	def __init__(self, tkwindow, label):
-		self.landscape = Landscape(200, 200, self, tkwindow, label)
+	def __init__(self):
+		self.landscape = Landscape(200, 200, self)
 		self.agents = []
-		for i in range(10): #200
+		for i in range(100): #200
 			self.add_agent(Agent(self.landscape, self))
 
 	def step(self, round):
@@ -31,24 +33,13 @@ class Simulation:
 		self.landscape.remove_agent(agent)
 
 	def view(self, step):
-		self.landscape.view(step)
+		return self.landscape.view(step)
 
 	def output(self):
 		self.landscape.output()
 
-def mouse_call_back(event, x, y, flags, param):
-	# this handles terminating the simulation (?)
-	# and exporting to ..JSON?
-	# wait until im window is responsive if it is not responding
-
-	global end_sim
-
-	if event == cv2.EVENT_LBUTTONDBLCLK:
-		print("mouse double click!")
-		end_sim = True
-
-def run(simulation):
-	global end_sim
+def run_sim(queue, stop_request, output):
+	simulation = Simulation()
 
 	counter = 0
 	while True:
@@ -56,10 +47,13 @@ def run(simulation):
 		round = 1
 		print('{}-{}'.format(counter, round))
 		for i in range(5):
-			if end_sim:
+			if stop_request.empty() is False:
+				queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
+				simulation.output()
+				output.put(True)
 				return
 			if i % 1 == 0:
-				simulation.view('{}-{}-{}'.format(counter, round, i))
+				queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
 				print(len(simulation.agents))
 				print('prosperity: {}'.format(sum(sum(simulation.landscape.prosperity, []))))
 	#			print(max(simulation.landscape.prosperity))
@@ -73,10 +67,13 @@ def run(simulation):
 			print('{}-{}'.format(counter, round))
 
 			for i in range(5):
-				if end_sim:
+				if stop_request.empty() is False:
+					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
+					simulation.output()
+					output.put(True)
 					return
 				if i % 1 == 0:
-					simulation.view('{}-{}-{}'.format(counter, round, i))
+					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
 					print(len(simulation.agents))
 		#			print(max(simulation.landscape.prosperity))
 		#			print(max(simulation.landscape.traffic))
@@ -87,32 +84,106 @@ def run(simulation):
 			print('{}-{}'.format(counter, round))
 
 			for i in range(5):
-				if end_sim:
+				if stop_request.empty() is False:
+					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
+					simulation.output()
+					output.put(True)
 					return
 				if i % 1 == 0:
-					simulation.view('{}-{}-{}'.format(counter, round, i))
+					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
 					print(len(simulation.agents))
 		#			print(max(simulation.landscape.prosperity))
 		#			print(max(simulation.landscape.traffic))
 				simulation.step(round)
 
+def output_sim(tkwindow, output):
+	global p
+
+	if output.empty():
+		tkwindow.after(500, output_sim, tkwindow, output)
+	else:
+		print("output done")
+		p.terminate()
+		while p.is_alive():
+			time.sleep(0.1)
+		print("Simulation is alive: {}".format(p.is_alive()))
+
+def read_sim(tkwindow, label, queue):
+	DELAY = 500
+
+	if queue.empty():
+		pass
+
+	else:
+		img = queue.get()
+		image = Image.fromarray(img)
+		imgtk = ImageTk.PhotoImage(image=image)
+		label.config(image=imgtk)
+		label.image = imgtk
+		tkwindow.update()
+	tkwindow.after(DELAY, read_sim, tkwindow, label, queue)
+
+def button_start(tkwindow, label, start_button, end_button):
+	global p
+
+	queue = Queue()
+	stop_request = Queue()
+	output = Queue()
+	end_button.stop_request = stop_request
+	end_button.output = output
+
+	DELAY = 500
+
+	#print("Start click!")
+	end_button.config(state = 'normal')
+	start_button.config(state = 'disabled')
+
+	p = Process(target=run_sim, args=(queue, stop_request, output))
+	p.start()
+	tkwindow.after(DELAY, read_sim, tkwindow, label, queue)
+
+def button_stop(tkwindow, start_button, end_button):
+	global p
+
+	DELAY = 500
+
+	#print("Stop click!")
+	start_button.config(state = 'normal')
+	end_button.config(state = 'disabled')
+	end_button.stop_request.put(True)
+	print("processing output...")
+	tkwindow.after(DELAY, output_sim, tkwindow, end_button.output)
+
+def button_exit():
+	tkwindow.destroy()
+	exit(0)
+
 if __name__ == "__main__":
+	end_sim = False
+
 	tkwindow = Tk()
-	img = np.full((400, 800, 3), 0, np.uint8)
+	img = np.full((1, 1, 3), 205, np.uint8) # placeholder
 	image = Image.fromarray(img)
 	imgtk = ImageTk.PhotoImage(image=image)
 	label = Label(tkwindow, image=imgtk)
-	label.pack()
+	label.image = imgtk
+	label.grid(row = 0, column = 1, rowspan = 8)
+	start = Button(width = 15, height = 1, text = "Start")
+	start.grid(row = 2, column = 0, padx = 10)
+	hide = Button(width = 15, height = 1, text = "Run in background")
+	hide.grid(row = 3, column = 0, padx = 10)
+	end = Button(width = 15, height = 1, text = "Stop and save", state = 'disabled')
+	end.grid(row = 4, column = 0, padx = 10)
 
-	#cv2.namedWindow('town', 1)
+	start.config(command = lambda: button_start(tkwindow, label, start, end))
+	end.config(command = lambda: button_stop(tkwindow, start, end))
 
-	simulation = Simulation(tkwindow, label)
-	end_sim = False
+	quit = Button(width = 15, height = 1, text = "Exit program", command = button_exit)
+	quit.grid(row = 5, column = 0, padx = 10)
 
-	cv2.setMouseCallback('town', mouse_call_back)
+	tkwindow.mainloop()
 
-	run(simulation) # mouse left double click to terminate sim
-	simulation.output()
+
 
 	# thought: major roads divide into plots, plots' subdivision becomes minor roads?
 
@@ -124,3 +195,6 @@ if __name__ == "__main__":
 
 	#! output to json then import to sumo
 	#simulation.view("generating terrain")
+
+	#! clean code
+	#! fix bugs...

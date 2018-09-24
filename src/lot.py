@@ -18,7 +18,8 @@ class Lot:
 	def get_lot(self):
 		self.border = get_border_pts(self.points)
 
-		self.center = (cx, cy) = get_pt_avg(self.points)
+		(ax, ay) = get_pt_avg(self.points)
+		self.center = (cx, cy) = (int(ax), int(ay))
 		center_node = self.landscape.array[cx][cy]
 
 		lot = set([center_node])

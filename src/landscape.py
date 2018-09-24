@@ -12,12 +12,10 @@ from util import Type, get_line, check_turn_and_endpoint, check_overlapping_node
 from util2 import get_closest_point, get_point_to_close_gap_minor, get_point_to_close_gap_major
 
 class Landscape:
-	def __init__(self, x, y, simulation, tkwindow, label):
+	def __init__(self, x, y, simulation):
 		self.x = x
 		self.y = y
 		self.simulation = simulation
-		self.tkwindow = tkwindow
-		self.label = label
 		self.array = [[Node(i, j, self) for j in range(y)] for i in range(x)]
 		self.nodes = [node for row in self.array for node in row]
 		self.prosperity = [[0 for j in range(y)] for i in range(x)]
@@ -252,18 +250,18 @@ class Landscape:
 			node.add_type(Type.CITY_GARDEN)
 
 	def view(self, step):
-		WATER_color = (255, 234, 167)
-		FOREST_color = (0, 184, 148)
-		GREEN_color = (85, 239, 196)
-		BROWN_color = (178, 190, 195)
-		BUILDING_color = (200, 247, 238)
+		WATER_color = (167, 234, 255)
+		FOREST_color = (148, 184, 0)
+		GREEN_color = (196, 239, 85)
+		BROWN_color = (195, 190, 178)
+		BUILDING_color = (238, 247, 200)
 		MAJOR_ROAD_color = (0, 0, 0)
 		MINOR_ROAD_color = (80, 80, 80)
-		BRIDGE_color = (19,69,139)
+		BRIDGE_color = (139,69,19)
 		CITY_GARDEN_color = (45, 136, 45)
-		HIGHWAY_color = (0, 0, 255) # same as plot, but when I look at highways I probably don't want to show plot
-		BYPASS_color = (183, 159, 0)
-		AGENT_color = (0, 0, 255)
+		HIGHWAY_color = (255, 0, 0) # same as plot, but when I look at highways I probably don't want to show plot
+		BYPASS_color = (0, 159, 183)
+		AGENT_color = (255, 0, 0)
 		PLOT_color = (255, 0, 255)
 
 		img = np.full((self.x, self.y * 2, 3), 0, np.uint8)
@@ -294,7 +292,7 @@ class Landscape:
 					img[i, j] = BROWN_color 
 
 				if self.array[i][j].prosperity() > 0:
-					img[i, j + self.y, 2] = self.array[i][j].prosperity() * 5
+					img[i, j + self.y, 0] = self.array[i][j].prosperity() * 5
 
 				if self.array[i][j].traffic() > 0:
 					img[i, j + self.y, 1] = self.array[i][j].traffic() * 5
@@ -309,14 +307,10 @@ class Landscape:
 
 		print("visualizing... ")
 
-		image = Image.fromarray(img)
-		imgtk = ImageTk.PhotoImage(image=image)
-		self.label.configure(image=imgtk)
-		self.tkwindow.update()
-
 		#cv2.imshow('town', img)
 		#cv2.waitKey(0)
 		#cv2.waitKey(1)
+		return img
 
 	def output(self):
 		turns = set()
