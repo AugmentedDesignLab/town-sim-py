@@ -312,7 +312,7 @@ class Landscape:
 		#cv2.waitKey(1)
 		return img
 
-	def output(self):
+	def output(self, filename):
 		turns = set()
 		roadnodes = set()
 		road_segments = set()
@@ -330,8 +330,9 @@ class Landscape:
 				if rs.rnode2 is not None:
 					road_segments.add(rs)
 
-		for rs in road_segments:
-			print("{},{},{}".format(
-				(rs.rnode1.x, rs.rnode1.y),
-				(rs.rnode2.x, rs.rnode2.y),
-				rs.shape))
+		with open(filename, "w") as file:
+			for rs in road_segments:
+				print("{},{},{}".format(
+					(rs.rnode1.x, rs.rnode1.y),
+					(rs.rnode2.x, rs.rnode2.y),
+					rs.shape), file=file)

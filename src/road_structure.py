@@ -12,7 +12,7 @@ class RoadSegment:
 
 		check = [direction]
 
-		print("finding next rnode")
+		#print("finding next rnode")
 		while len(check) > 0:
 			check_ = check[0]
 			if (check_.x, check_.y) in turns:
@@ -24,5 +24,5 @@ class RoadSegment:
 			roads_no_replace.remove(check_)
 			check = [n for n in check_.adjacent if n in roads_no_replace and n is not self.rnode1]
 
-		print("rnode 2 not found!")
+		#print("rnode 2 not found!")
 

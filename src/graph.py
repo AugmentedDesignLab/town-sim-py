@@ -35,11 +35,12 @@ class Simulation:
 	def view(self, step):
 		return self.landscape.view(step)
 
-	def output(self):
-		self.landscape.output()
+	def output(self, filename):
+		self.landscape.output(filename)
 
 def run_sim(queue, stop_request, output):
 	simulation = Simulation()
+	filename = "output.txt"
 
 	counter = 0
 	while True:
@@ -49,7 +50,7 @@ def run_sim(queue, stop_request, output):
 		for i in range(5):
 			if stop_request.empty() is False:
 				queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-				simulation.output()
+				simulation.output(filename)
 				output.put(True)
 				return
 			if i % 1 == 0:
@@ -69,7 +70,7 @@ def run_sim(queue, stop_request, output):
 			for i in range(5):
 				if stop_request.empty() is False:
 					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-					simulation.output()
+					simulation.output(filename)
 					output.put(True)
 					return
 				if i % 1 == 0:
@@ -86,7 +87,7 @@ def run_sim(queue, stop_request, output):
 			for i in range(5):
 				if stop_request.empty() is False:
 					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-					simulation.output()
+					simulation.output(filename)
 					output.put(True)
 					return
 				if i % 1 == 0:
@@ -170,7 +171,7 @@ if __name__ == "__main__":
 	label.grid(row = 0, column = 1, rowspan = 8)
 	start = Button(width = 15, height = 1, text = "Start")
 	start.grid(row = 2, column = 0, padx = 10)
-	hide = Button(width = 15, height = 1, text = "Run in background")
+	hide = Button(width = 15, height = 1, text = "Run in background", state = 'disabled')
 	hide.grid(row = 3, column = 0, padx = 10)
 	end = Button(width = 15, height = 1, text = "Stop and save", state = 'disabled')
 	end.grid(row = 4, column = 0, padx = 10)
