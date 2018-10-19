@@ -77,7 +77,7 @@ def get_point_to_close_gap_minor(x1, y1, landscape, points):
 		if Type.GREEN in landtype or Type.FOREST in landtype or Type.WATER in landtype:
 			break
 		if Type.MAJOR_ROAD in landtype or Type.MINOR_ROAD in landtype and Type.BYPASS not in landtype:
-			return get_line((x1, y1), (x2, y2))
+			return (x2, y2)
 		(x2, y2) = (x2 + x, y2 + y)
 
 	return None
@@ -99,7 +99,7 @@ def get_point_to_close_gap_major(node, x1, y1, landscape, points):
 			break
 		if (x2, y2) in border:
 			landtype = landscape.array[x2][y2].type
-			return get_line((x1, y1), (x2, y2))
+			return (x2, y2)
 #		elif Type.MAJOR_ROAD in landtype:
 #			return get_line((x1, y1), (x2, y2))
 		(x2, y2) = (x2 + x, y2 + y)

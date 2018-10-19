@@ -172,9 +172,9 @@ if __name__ == "__main__":
 	start = Button(width = 15, height = 1, text = "Start")
 	start.grid(row = 2, column = 0, padx = 10)
 	hide = Button(width = 15, height = 1, text = "Run in background", state = 'disabled')
-	hide.grid(row = 3, column = 0, padx = 10)
+	hide.grid(row = 4, column = 0, padx = 10)
 	end = Button(width = 15, height = 1, text = "Stop and save", state = 'disabled')
-	end.grid(row = 4, column = 0, padx = 10)
+	end.grid(row = 3, column = 0, padx = 10)
 
 	start.config(command = lambda: button_start(tkwindow, label, start, end))
 	end.config(command = lambda: button_stop(tkwindow, start, end))

@@ -1,3 +1,4 @@
+from collections import Counter
 import cv2
 import numpy as np
 from PIL import Image, ImageTk
@@ -13,6 +14,8 @@ from util2 import get_closest_point, get_point_to_close_gap_minor, get_point_to_
 
 class Landscape:
 	def __init__(self, x, y, simulation):
+		self.roadnodes = []
+		self.roadsegments = set()
 		self.x = x
 		self.y = y
 		self.simulation = simulation
@@ -84,6 +87,9 @@ class Landscape:
 				self.set_type_building([self.array[i][j]])
 
 		self.set_type_road([(137, i) for i in range(115, 135)], Type.MAJOR_ROAD)
+		self.roadnodes.append(self.array[137][115])
+		self.roadnodes.append(self.array[137][135])
+		self.roadsegments.add(RoadSegment(self.array[137][115], self.array[137][135]))
 
 	def init_lots(self):
 		self.lots.add(Lot(self, [(100, 100), (100, 150), (144, 150), (144, 100)]))
@@ -155,11 +161,15 @@ class Landscape:
 			node2 = self.array[x2][y2]
 			for n in node2.local():
 				if n in self.bypass_nodes:
-					node2 = n
+					#node2 = n
 					break
 
-			points = get_line((x1, y1), (x2, y2))
-			self.set_type_bypass(points, node, self.array[x2][y2])
+			points = get_line((x1, y1), (node2.x, node2.y))
+			self.roadnodes.append(node)
+			self.roadnodes.append(node2)
+			self.roadsegments.add(RoadSegment(node, node2))
+
+			self.set_type_bypass(points, node, node2)
 		elif len(self.bypass_roads) == 0: # should only be true for the first bypass node (?)
 			points = [(x1, y1)]
 			self.set_type_bypass(points, node)
@@ -171,19 +181,31 @@ class Landscape:
 		if point is not None:
 			(x2, y2) = point
 			points = get_line((x1, y1), (x2, y2))
+			self.roadnodes.append(node)
+			self.roadnodes.append(self.array[x2][y2])
+			self.roadsegments.add(RoadSegment(node, self.array[x2][y2]))
 			#print(points)
+			self.set_type_road(points, road_type)
 			if road_type == Type.MINOR_ROAD:
-				self.set_type_road(points, road_type)
-				points = get_point_to_close_gap_minor(x1, y1, self, points)
-				if points is not None:
+				point2 = get_point_to_close_gap_minor(x1, y1, self, points)
+				if point2 is not None:
+					(x2, y2) = point2
+					self.roadnodes.append(node)
+					self.roadnodes.append(self.array[x2][y2])
+					self.roadsegments.add(RoadSegment(node, self.array[x2][y2]))
+
+					points = get_line((x1, y1), point2)
 					self.set_type_road(points, road_type)
 			elif road_type == Type.MAJOR_ROAD:
-				self.set_type_road(points, road_type)
-				points = get_point_to_close_gap_major(node, x1, y1, self, points)
-				if points is not None:
+				point2 = get_point_to_close_gap_major(node, x1, y1, self, points)
+				if point2 is not None:
+					(x2, y2) = point2
+					self.roadnodes.append(node)
+					self.roadnodes.append(self.array[x2][y2])
+					self.roadsegments.add(RoadSegment(node, self.array[x2][y2]))
+
+					points = get_line((x1, y1), point2)
 					self.set_type_road(points, road_type)
-			else:
-				self.set_type_road(points[1:len(points) - 1], road_type)
 
 	def set_type_bypass(self, points, node1, node2 = None):
 		nodes = []
@@ -222,6 +244,7 @@ class Landscape:
 	def set_type_road(self, points, road_type):
 		for (x, y) in points:
 			node = self.array[x][y]
+
 			#if node.lot is None:
 			#	print ("setting road in non lot")
 			if Type.WATER in node.type:
@@ -313,25 +336,23 @@ class Landscape:
 		return img
 
 	def output(self, filename):
+		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
+		counted = Counter()
+		for rn in self.roadnodes:
+			counted[rns.index((rn.x, rn.y))] += 1
+		
 		turns = set()
-		roadnodes = set()
-		road_segments = set()
+		for (x, y) in rns:
+			print (counted[rns.index((x, y))])
+			if counted[rns.index((x, y))] == 2:
+				turns.add(self.array[x][y])
 
-		for node in self.roads:
-			check_turn_and_endpoint(node, self.roads, turns, roadnodes)
-
-		# check for overlapping nodes
-		roadnodes = check_overlapping_nodes(roadnodes)
-
-		roads_no_replace = set(self.roads)
-		for rnode in roadnodes:
-			for node in (rnode.adjacent & roads_no_replace):
-				rs = RoadSegment(rnode, node, turns, roadnodes, roads_no_replace)
-				if rs.rnode2 is not None:
-					road_segments.add(rs)
+		for turn in turns:
+			[rs1, rs2] = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
+			rs1.merge(rs2, turn, self.roadsegments)
 
 		with open(filename, "w") as file:
-			for rs in road_segments:
+			for rs in self.roadsegments:
 				print("{},{},{}".format(
 					(rs.rnode1.x, rs.rnode1.y),
 					(rs.rnode2.x, rs.rnode2.y),
