@@ -184,8 +184,6 @@ if __name__ == "__main__":
 
 	tkwindow.mainloop()
 
-
-
 	# thought: major roads divide into plots, plots' subdivision becomes minor roads?
 
 	# subdivide long blocks
