@@ -83,20 +83,6 @@ def run_simulation(queue, stop_request, output_request, pause_request, output):
 			print("exiting subprocess")
 			exit(0)
 
-def output_simulation():
-	global p, output
-
-	if output.is_set() == False:
-		Clock.schedule_once(output_simulation, 1)
-	else:
-		print("output done")
-		output.clear()
-		p.terminate()
-		while p.is_alive():
-			time.sleep(1)
-		print("Simulation is alive: {}".format(p.is_alive()))
-
-
 def read_simulation(dt):
 	global queue, kvbox
 
@@ -145,11 +131,7 @@ def button_pause(instance):
 	output_request.set()
         
 def button_exit(exit_btn):
-	global p, stop_request, ui
-	p.terminate()
-#	while p.is_alive():
-#		time.sleep(0.1)
-#		print("Simulation is alive: {}".format(p.is_alive()))
+	global ui
 	ui.stop()
 	exit(0)
 
@@ -161,10 +143,6 @@ def button_stop(instance):
 	pause_btn.disabled = True
 
 	stop_request.set()
-#	p.terminate()
-#	while p.is_alive():
-#		time.sleep(0.1)
-#		print("Simulation is alive: {}".format(p.is_alive()))
         
 class UI(App):
 	global kvbox
@@ -183,10 +161,8 @@ class UI(App):
 	pause_btn = Button(text='Pause and Output to File', on_press=button_pause)
 	stop_btn = Button(text='End Simulation', on_press=button_stop)
 	start_btn = Button(text='Play Simulation', on_press=button_start)
-#	hide_btn = Button(text='Run in Background')
 	exit_btn = Button(text='Exit Program', on_press=button_exit)
         
-
 	def build(self):
 		layout = BoxLayout()
 		layout01 = BoxLayout(orientation='vertical', size_hint_x=0.3)
@@ -197,7 +173,6 @@ class UI(App):
 		stop_btn.disabled = True
 		layout01.add_widget(self.e1)
 		layout01.add_widget(self.l1)
-#		layout01.add_widget(self.hide_btn)
 		layout01.add_widget(exit_btn)
 		layout.add_widget(layout01)
 
@@ -212,7 +187,6 @@ class UI(App):
 			image = kiImage(source='', pos=kvbox.pos, size=kvbox.size)
 			image.texture = CoreImage(imgData, ext='png').texture
 		layout02.add_widget(kvbox)
-#		layout02.add_widget(Label(text='image'))
 		layout.add_widget(layout02)
 		return layout
 
