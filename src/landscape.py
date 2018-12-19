@@ -77,16 +77,21 @@ class Landscape:
 		return self.traffic[x][y]
 
 	def init_geography(self):
-		for i in range(145, 148):
-			for j in range(0, 200):
-				self.array[i][j].clear_type()
-				self.array[i][j].add_type(Type.WATER)
-
 		# TODO
 		# random.choices is better in python3.7
-		[x1, x2] = random.sample(range(0, self.x), k=2)
-		[y1, y2] = random.sample(range(0, self.y), k=2)
-		self.init_main_st(x1, y1, x2, y2)
+		[x1, x2] = random.sample(range(self.x), k=2)
+		[y1, y2] = random.sample(range(self.y), k=2)
+		(y1, y2) = self.init_main_st(x1, y1, x2, y2)
+
+		pos = random.choice([x for x in range(self.x) if x not in range(y1, y2+1)])
+		if pos + 3 in range(y1, y2+1):
+			pos = range(pos, pos+3)
+		else:
+			pos = range(pos-3, pos)
+		for i in pos:
+			for j in range(self.x):
+				self.array[i][j].clear_type()
+				self.array[i][j].add_type(Type.WATER)
 
 	def init_main_st(self, x1, y1, x2, y2):
 		points = get_line((x1, y1), (x2, y2))
@@ -103,6 +108,7 @@ class Landscape:
 				if pt not in points:
 					self.set_type_building([self.array[pt.x][pt.y]])
 		self.init_lots(x1, y1, x2, y2)
+		return (y1, y2)
 
 	def init_lots(self, x1, y1, x2, y2):
 		(mx, my) = (int(x1 + x2)//2, int(y1 + y2)//2)
