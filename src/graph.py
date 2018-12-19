@@ -1,15 +1,29 @@
 import copy
 import cv2
-from multiprocessing import Queue, Process
+from functools import partial 
+from io import BytesIO
+from kivy.app import App
+from kivy.clock import Clock
+from kivy.config import Config
+from kivy.core.image import Image as CoreImage
+from kivy.graphics.instructions import Canvas
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.image import Image as kiImage
+from kivy.uix.label import Label
+from kivy.uix.slider import Slider 
+from multiprocessing import Event, Queue, Process
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image, ImageDraw, ImageFont
+import sys
 import time
-from tkinter import Tk, Label, Button
 
 from agent import Agent
 from landscape import Landscape
 from lot import Lot
 import mapgen
+
+Config.set('kivy', 'exit_on_escape', '0')
 
 class Simulation:
 	def __init__(self):
@@ -38,152 +52,177 @@ class Simulation:
 	def output(self, filename):
 		self.landscape.output(filename)
 
-def run_sim(queue, stop_request, output):
-	simulation = Simulation()
+def run_simulation_inner_loop(queue, stop_request, simulation, counter):
 	filename = "output.txt"
+	p = sum(sum(simulation.landscape.prosperity, []))
+	phase = 1
+	for i in range(15):
+		if stop_request.is_set():
+			stop_request.clear()
+			return 'stop'
+		if i >= 5 and i < 10 and p > 200000:
+			phase = 2
+		elif i >= 10 and p > 80000:
+			phase = 3
+		queue.put(simulation.view('{}-{}-{}'.format(counter, phase, i)))
+		simulation.step(phase)
 
+def run_simulation(queue, stop_request, output_request, pause_request, output):
+	simulation = Simulation()
 	counter = 0
 	while True:
+		if output_request.is_set():
+			simulation.output("output.txt")
+			output.set()
+			output_request.clear()
+		if pause_request.is_set():
+			pass
 		counter += 1
-		round = 1
-		print('{}-{}'.format(counter, round))
-		for i in range(5):
-			if stop_request.empty() is False:
-				queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-				simulation.output(filename)
-				output.put(True)
-				return
-			if i % 1 == 0:
-				queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-				print(len(simulation.agents))
-				print('prosperity: {}'.format(sum(sum(simulation.landscape.prosperity, []))))
-	#			print(max(simulation.landscape.prosperity))
-	#			print(max(simulation.landscape.traffic))
-			simulation.step(round)
+		if run_simulation_inner_loop(queue, stop_request, simulation, counter) == 'stop':
+			stop_request.clear()
+			print("exiting subprocess")
+			exit(0)
 
-		p = sum(sum(simulation.landscape.prosperity, []))
+def output_simulation():
+	global p, output
 
-		if p > 200000:
-			round = 2
-			print('{}-{}'.format(counter, round))
-
-			for i in range(5):
-				if stop_request.empty() is False:
-					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-					simulation.output(filename)
-					output.put(True)
-					return
-				if i % 1 == 0:
-					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-					print(len(simulation.agents))
-		#			print(max(simulation.landscape.prosperity))
-		#			print(max(simulation.landscape.traffic))
-				simulation.step(round)
-
-		if p > 80000:
-			round = 3
-			print('{}-{}'.format(counter, round))
-
-			for i in range(5):
-				if stop_request.empty() is False:
-					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-					simulation.output(filename)
-					output.put(True)
-					return
-				if i % 1 == 0:
-					queue.put(simulation.view('{}-{}-{}'.format(counter, round, i)))
-					print(len(simulation.agents))
-		#			print(max(simulation.landscape.prosperity))
-		#			print(max(simulation.landscape.traffic))
-				simulation.step(round)
-
-def output_sim(tkwindow, output):
-	global p
-
-	if output.empty():
-		tkwindow.after(500, output_sim, tkwindow, output)
+	if output.is_set() == False:
+		Clock.schedule_once(output_simulation, 1)
 	else:
 		print("output done")
+		output.clear()
 		p.terminate()
 		while p.is_alive():
-			time.sleep(0.1)
+			time.sleep(1)
 		print("Simulation is alive: {}".format(p.is_alive()))
 
-def read_sim(tkwindow, label, queue):
-	DELAY = 500
 
-	if queue.empty():
-		pass
+def read_simulation(dt):
+	global queue, kvbox
 
-	else:
+	if queue.empty() != True:
 		img = queue.get()
-		image = Image.fromarray(img)
-		imgtk = ImageTk.PhotoImage(image=image)
-		label.config(image=imgtk)
-		label.image = imgtk
-		tkwindow.update()
-	tkwindow.after(DELAY, read_sim, tkwindow, label, queue)
+		imgIO = BytesIO()
+		qr = Image.fromarray(img)
+		qr.save(imgIO, format='png')
+		imgIO.seek(0)
+		imgData = BytesIO(imgIO.read())
+		with kvbox.canvas:
+			kvbox.canvas.clear()
+			image = kiImage(source='', pos=kvbox.pos, size=kvbox.size)
+			image.texture = CoreImage(imgData, ext='png').texture
 
-def button_start(tkwindow, label, start_button, end_button):
-	global p
+def button_start(instance):
+	global p, queue, stop_request, output_request, pause_request, read_event, output
+	global start_btn, pause_btn, stop_btn
 
-	queue = Queue()
-	stop_request = Queue()
-	output = Queue()
-	end_button.stop_request = stop_request
-	end_button.output = output
+	start_btn.disabled = True
+	pause_btn.disabled = False
+	stop_btn.disabled = False
 
-	DELAY = 500
+	if pause_request is not None and pause_request.is_set():
+		pause_request.clear()
+	else:
+		queue = Queue()
+		stop_request = Event()
+		output_request = Event()
+		pause_request = Event()	
+		output = Event()
 
-	#print("Start click!")
-	end_button.config(state = 'normal')
-	start_button.config(state = 'disabled')
+		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output))
+		p.daemon = True
+		p.start()
+		if read_event is not None:
+			read_event.cancel()
+		read_event = Clock.schedule_interval(read_simulation, 5)
 
-	p = Process(target=run_sim, args=(queue, stop_request, output))
-	p.start()
-	tkwindow.after(DELAY, read_sim, tkwindow, label, queue)
+def button_pause(instance):
+	global pause_btn, start_btn
+	global output_request
+	pause_btn.disabled = True
+	start_btn.disabled = False
 
-def button_stop(tkwindow, start_button, end_button):
-	global p
-
-	DELAY = 500
-
-	#print("Stop click!")
-	start_button.config(state = 'normal')
-	end_button.config(state = 'disabled')
-	end_button.stop_request.put(True)
-	print("processing output...")
-	tkwindow.after(DELAY, output_sim, tkwindow, end_button.output)
-
-def button_exit():
-	tkwindow.destroy()
+	output_request.set()
+        
+def button_exit(exit_btn):
+	global p, stop_request, ui
+	p.terminate()
+#	while p.is_alive():
+#		time.sleep(0.1)
+#		print("Simulation is alive: {}".format(p.is_alive()))
+	ui.stop()
 	exit(0)
 
+def button_stop(instance):
+	global start_btn, stop_btn, pause_btn
+	global stop_request
+	start_btn.disabled = False
+	stop_btn.disabled = True
+	pause_btn.disabled = True
+
+	stop_request.set()
+#	p.terminate()
+#	while p.is_alive():
+#		time.sleep(0.1)
+#		print("Simulation is alive: {}".format(p.is_alive()))
+        
+class UI(App):
+	global kvbox
+	global start_btn, pause_btn, stop_btn, exit_btn
+	global p, queue, stop_request, output_request, pause_request, read_event, output
+	read_event = pause_request = None
+        
+	e1 = Slider(min=-360., max=360.)
+	l1 = Label(text='{}'.format(e1.value))
+#	def trackSliderValue1(self, value):
+#		l1.text = str(value)
+#
+#	e1.bind(value=trackSliderValue1)
+	kvbox = BoxLayout()
+	kvbox.size=[800., 400.]
+	pause_btn = Button(text='Pause and Output to File', on_press=button_pause)
+	stop_btn = Button(text='End Simulation', on_press=button_stop)
+	start_btn = Button(text='Play Simulation', on_press=button_start)
+#	hide_btn = Button(text='Run in Background')
+	exit_btn = Button(text='Exit Program', on_press=button_exit)
+        
+
+	def build(self):
+		layout = BoxLayout()
+		layout01 = BoxLayout(orientation='vertical', size_hint_x=0.3)
+		layout01.add_widget(start_btn)
+		layout01.add_widget(pause_btn)
+		pause_btn.disabled = True
+		layout01.add_widget(stop_btn)
+		stop_btn.disabled = True
+		layout01.add_widget(self.e1)
+		layout01.add_widget(self.l1)
+#		layout01.add_widget(self.hide_btn)
+		layout01.add_widget(exit_btn)
+		layout.add_widget(layout01)
+
+		layout02 = BoxLayout(orientation='vertical')
+		img = np.full((1, 1, 3), 0, np.uint8) # placeholder
+		imgIO = BytesIO()
+		qr = Image.fromarray(img)
+		qr.save(imgIO, format='png')
+		imgIO.seek(0)
+		imgData = BytesIO(imgIO.read())
+		with kvbox.canvas:
+			image = kiImage(source='', pos=kvbox.pos, size=kvbox.size)
+			image.texture = CoreImage(imgData, ext='png').texture
+		layout02.add_widget(kvbox)
+#		layout02.add_widget(Label(text='image'))
+		layout.add_widget(layout02)
+		return layout
+
 if __name__ == "__main__":
+	global ui
 	end_sim = False
+	ui = UI()
+	ui.run()
 
-	tkwindow = Tk()
-	img = np.full((1, 1, 3), 205, np.uint8) # placeholder
-	image = Image.fromarray(img)
-	imgtk = ImageTk.PhotoImage(image=image)
-	label = Label(tkwindow, image=imgtk)
-	label.image = imgtk
-	label.grid(row = 0, column = 1, rowspan = 8)
-	start = Button(width = 15, height = 1, text = "Start")
-	start.grid(row = 2, column = 0, padx = 10)
-	hide = Button(width = 15, height = 1, text = "Run in background", state = 'disabled')
-	hide.grid(row = 4, column = 0, padx = 10)
-	end = Button(width = 15, height = 1, text = "Stop and save", state = 'disabled')
-	end.grid(row = 3, column = 0, padx = 10)
-
-	start.config(command = lambda: button_start(tkwindow, label, start, end))
-	end.config(command = lambda: button_stop(tkwindow, start, end))
-
-	quit = Button(width = 15, height = 1, text = "Exit program", command = button_exit)
-	quit.grid(row = 5, column = 0, padx = 10)
-
-	tkwindow.mainloop()
-
+'''
 	# thought: major roads divide into plots, plots' subdivision becomes minor roads?
 
 	# subdivide long blocks
@@ -191,9 +230,4 @@ if __name__ == "__main__":
 	# add entertainment value?
 	# highways - ring roads are not "completing the circle" # this broke
 	# geography
-
-	#! output to json then import to sumo
-	#simulation.view("generating terrain")
-
-	#! clean code
-	#! fix bugs...
+'''

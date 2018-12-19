@@ -1,9 +1,8 @@
 from collections import Counter
 import cv2
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image
 import random
-from tkinter import Tk, Canvas, Label
 
 from lot import Lot
 import mapgen
@@ -340,33 +339,31 @@ class Landscape:
 			for (x, y) in lot.border:
 				img[x, y + self.y] = PLOT_color
 
-		#img = cv2.resize(img, (2000, 1000))
-		img = cv2.resize(img, (800, 400))
+		img = cv2.resize(img, (2000, 1000))
+#		img = cv2.resize(img, (800, 400))
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
 		print("visualizing... ")
 
-		#cv2.imshow('town', img)
-		#cv2.waitKey(0)
-		#cv2.waitKey(1)
 		return img
 
 	def output(self, filename):
+		print("printing output")
 		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
 		counted = Counter()
 		for rn in self.roadnodes:
 			counted[rns.index((rn.x, rn.y))] += 1
-		
+		print("printing output")
 		turns = set()
 		for (x, y) in rns:
 			print (counted[rns.index((x, y))])
 			if counted[rns.index((x, y))] == 2:
 				turns.add(self.array[x][y])
-
+		print("printing output")
 		for turn in turns:
 			[rs1, rs2] = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
 			rs1.merge(rs2, turn, self.roadsegments)
-
+		print("saving output to file")
 		with open(filename, "w") as file:
 			for rs in self.roadsegments:
 				print("{},{},{}".format(
