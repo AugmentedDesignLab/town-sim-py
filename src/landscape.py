@@ -9,7 +9,6 @@ from PIL import Image
 import random
 
 from lot import Lot
-import mapgen
 from node import Node
 from road_structure import RoadSegment
 from util import Type, get_line, check_turn_and_endpoint, check_overlapping_nodes

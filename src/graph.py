@@ -25,7 +25,6 @@ import time
 from agent import Agent
 from landscape import Landscape
 from lot import Lot
-import mapgen
 
 Config.set('kivy', 'exit_on_escape', '0')
 
