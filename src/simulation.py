@@ -16,12 +16,12 @@ class Simulation:
 		for i in range(100): #200
 			self.add_agent(Agent(self.landscape, self))
 
-	def step(self, round):
+	def step(self, phase):
 		for agent in copy.copy(self.agents):
 			agent.step(self.landscape)
 			if agent.water < 0 or agent.resource < 0:
 				self.kill(agent)
-		self.landscape.step(round)
+		self.landscape.step(phase)
 
 	def add_agent(self, agent):
 		self.agents.append(agent)

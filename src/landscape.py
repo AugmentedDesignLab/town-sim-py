@@ -119,7 +119,7 @@ class Landscape:
 
 		self.lots.add(Lot(self, [(mx1, my1), (mx1, my2), (mx2, my2), (mx2, my1)]))
 
-	def step(self, round):
+	def step(self, phase):
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
 		random.shuffle(self.nodes)
 		for node in self.nodes:
@@ -137,7 +137,7 @@ class Landscape:
 				local_traffic = sum([n.traffic() for n in node.range()])
 
 				# major roads
-				if round == 1:
+				if phase == 1:
 					if (local_prosperity > 5000) and (len(list(set(node.range()) & set(self.roads))) == 0): #change to major road range for better effect
 						# find closest road node, connect to it 
 						self.set_new_road(i, j, Type.MAJOR_ROAD, True)
@@ -147,14 +147,14 @@ class Landscape:
 					if local_prosperity > 400 and (len(list(set(node.plot()) & set(self.roads))) != 0):
 						self.set_type_building(node.plot())
 
-				elif round == 2:
+				elif phase == 2:
 				# bypasses
 					if (local_traffic > 2000) and (len(list(set(node.range()) & set(self.roads))) == 0):
 						#print("match conditions for adding bypass")
 						self.set_new_bypass(i, j)
 
 				# minor roads
-				elif round == 3:
+				elif phase == 3:
 					if (local_prosperity > 400) and (len(list(set(node.plot()) & set(self.roads))) == 0): 
 						buildable = True
 						for node in node.plot():
