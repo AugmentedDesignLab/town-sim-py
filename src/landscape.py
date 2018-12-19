@@ -1,3 +1,7 @@
+# BSD 3-Clause License
+#
+# Copyright (c) 2018, Augmented Design Lab
+# All rights reserved.
 from collections import Counter
 import cv2
 import numpy as np
