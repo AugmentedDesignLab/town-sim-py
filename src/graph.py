@@ -23,7 +23,6 @@ def run_simulation_inner_loop_noui(simulation, counter):
 
 def run_simulation_noui():
 	simulation = Simulation(size=gridSize)
-	print("gridSize is {}".format(gridSize))
 	counter = 0
 	for i in range(10):
 		counter += 1
@@ -52,7 +51,7 @@ if __name__ == "__main__":
 		if args.phase3:
 			phase3threshold = args.phase3
 
-		print ("This will take a while. I'm not frozen, just slow.")
+		print ("This might take a while.")
 		run_simulation_noui()
 
 

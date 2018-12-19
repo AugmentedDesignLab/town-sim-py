@@ -349,33 +349,30 @@ class Landscape:
 				img[x, y + self.y] = PLOT_color
 
 		img = cv2.resize(img, (2000, 1000))
-#		img = cv2.resize(img, (800, 400))
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
-
-		print("visualizing... ")
 
 		return img
 
 	def output(self, filename):
-		print("printing output")
+		print("Calculating nodes...")
 		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
 		counted = Counter()
 		for rn in self.roadnodes:
 			counted[rns.index((rn.x, rn.y))] += 1
-		print("printing output")
+		print("Calculating turns...")
 		turns = set()
 		for (x, y) in rns:
 			print (counted[rns.index((x, y))])
 			if counted[rns.index((x, y))] == 2:
 				turns.add(self.array[x][y])
-		print("printing output")
+		print("Reconstructing roads...")
 		for turn in turns:
 			[rs1, rs2] = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
 			rs1.merge(rs2, turn, self.roadsegments)
-		print("saving output to file")
 		with open(filename, "w") as file:
 			for rs in self.roadsegments:
 				print("{},{},{}".format(
 					(rs.rnode1.x, rs.rnode1.y),
 					(rs.rnode2.x, rs.rnode2.y),
 					rs.shape), file=file)
+		print("Output saved to file.")
