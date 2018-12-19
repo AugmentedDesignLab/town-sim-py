@@ -1,3 +1,7 @@
+# BSD 3-Clause License
+#
+# Copyright (c) 2018, Augmented Design Lab
+# All rights reserved.
 from util import Type, get_line, get_pt_avg
 
 def get_border_pts(points):
