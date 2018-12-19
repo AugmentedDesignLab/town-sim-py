@@ -1,12 +1,14 @@
+# BSD 3-Clause License
+#
+# Copyright (c) 2018, Augmented Design Lab
+# All rights reserved.
 from collections import Counter
 import cv2
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image
 import random
-from tkinter import Tk, Canvas, Label
 
 from lot import Lot
-import mapgen
 from node import Node
 from road_structure import RoadSegment
 from util import Type, get_line, check_turn_and_endpoint, check_overlapping_nodes
@@ -30,8 +32,6 @@ class Landscape:
 		self.bypass_nodes = [] # bypass nodes are still waiting for more connections
 
 		self.lots = set()
-
-		self.init_geography()
 
 		#make neighbors; a node should not be its own neighbor
 		for i in range(x):
@@ -62,7 +62,7 @@ class Landscape:
 					node.add_adjacent(self.array[i + 1][j + 1])
 					node.add_neighbor(self.array[i + 1][j + 1])
 
-		self.init_lots()
+		self.init_geography()
 					
 	def add_agent(self, agent):
 		self.array[agent.x][agent.y].add_agent(agent)
@@ -82,20 +82,38 @@ class Landscape:
 				self.array[i][j].clear_type()
 				self.array[i][j].add_type(Type.WATER)
 
-		for i in range(135, 140):
-			for j in range(115, 135):
-				self.set_type_building([self.array[i][j]])
+		# TODO
+		# random.choices is better in python3.7
+		[x1, x2] = random.sample(range(0, self.x), k=2)
+		[y1, y2] = random.sample(range(0, self.y), k=2)
+		self.init_main_st(x1, y1, x2, y2)
 
-		self.set_type_road([(137, i) for i in range(115, 135)], Type.MAJOR_ROAD)
-		self.roadnodes.append(self.array[137][115])
-		self.roadnodes.append(self.array[137][135])
-		self.roadsegments.add(RoadSegment(self.array[137][115], self.array[137][135]))
+	def init_main_st(self, x1, y1, x2, y2):
+		points = get_line((x1, y1), (x2, y2))
+		endpt = min(20, len(points))
+		points = points[0:endpt]
+		(x1, y1) = points[0]
+		(x2, y2) = points[endpt-1]
+		self.set_type_road(points, Type.MAJOR_ROAD)
+		self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2]))
+		for (x, y) in points:
+			adjacent = self.array[x][y].adjacent
+			adjacent = [s for n in adjacent for s in n.adjacent]
+			for pt in adjacent:
+				if pt not in points:
+					self.set_type_building([self.array[pt.x][pt.y]])
+		self.init_lots(x1, y1, x2, y2)
 
-	def init_lots(self):
-		self.lots.add(Lot(self, [(100, 100), (100, 150), (144, 150), (144, 100)]))
+	def init_lots(self, x1, y1, x2, y2):
+		(mx, my) = (int(x1 + x2)//2, int(y1 + y2)//2)
+		mx1 = max(mx-25, 0)
+		mx2 = min(mx+25, self.x-1)
+		my1 = max(my-25, 0)
+		my2 = min(my+25, self.y-1)
+
+		self.lots.add(Lot(self, [(mx1, my1), (mx1, my2), (mx2, my2), (mx2, my1)]))
 
 	def step(self, round):
-
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
 		random.shuffle(self.nodes)
 		for node in self.nodes:
@@ -324,33 +342,31 @@ class Landscape:
 			for (x, y) in lot.border:
 				img[x, y + self.y] = PLOT_color
 
-		#img = cv2.resize(img, (2000, 1000))
-		img = cv2.resize(img, (800, 400))
+		img = cv2.resize(img, (2000, 1000))
+#		img = cv2.resize(img, (800, 400))
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
 		print("visualizing... ")
 
-		#cv2.imshow('town', img)
-		#cv2.waitKey(0)
-		#cv2.waitKey(1)
 		return img
 
 	def output(self, filename):
+		print("printing output")
 		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
 		counted = Counter()
 		for rn in self.roadnodes:
 			counted[rns.index((rn.x, rn.y))] += 1
-		
+		print("printing output")
 		turns = set()
 		for (x, y) in rns:
 			print (counted[rns.index((x, y))])
 			if counted[rns.index((x, y))] == 2:
 				turns.add(self.array[x][y])
-
+		print("printing output")
 		for turn in turns:
 			[rs1, rs2] = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
 			rs1.merge(rs2, turn, self.roadsegments)
-
+		print("saving output to file")
 		with open(filename, "w") as file:
 			for rs in self.roadsegments:
 				print("{},{},{}".format(
