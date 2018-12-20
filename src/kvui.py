@@ -123,7 +123,7 @@ class UI(App):
 		layout.add_widget(layout02)
 		return layout
 
-def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum):
+def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum):
 	p = sum(sum(simulation.landscape.prosperity, []))
 	phase = 1
 	for i in range(15):
@@ -154,7 +154,7 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 		if pause_request.is_set():
 			pass
 		counter += 1
-		if run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum) == 1:
+		if run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum) == 1:
 			stop_request.clear()
 			print("exiting subprocess")
 			exit(0)
