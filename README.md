@@ -1,4 +1,5 @@
 # town-sim-py
+Ver. 1.0
 Town growth simulator that creates road networks.
 
 Outputs a text file which contains lists of roads, and if the road is curved, a list of its turning points. 
