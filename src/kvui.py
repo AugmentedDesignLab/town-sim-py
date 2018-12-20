@@ -38,7 +38,7 @@ def button_start(instance):
 		pause_request = Event()	
 		output = Event()
 
-		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output))
+		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output, ui.phase2threshold, ui.phase3threshold, ui.gridSize, ui.outputFile, ui.maNum, ui.miNum, ui.byNum, ui.brNum))
 		p.daemon = True
 		p.start()
 		if read_event is not None:
@@ -72,9 +72,18 @@ class UI(App):
 	global start_btn, pause_btn, stop_btn, exit_btn
 	global p, queue, stop_request, output_request, pause_request, read_event, output
 	read_event = pause_request = None
-        
-	e1 = Slider(min=-360., max=360.)
-	l1 = Label(text='{}'.format(e1.value))
+
+	phase2threshold = 200000
+	phase3threshold = 80000
+	gridSize = 200
+	outputFile = "output.txt"
+	maNum = 10
+	miNum = 400
+	byNum = 2000
+	brNum = 5000
+
+#	e1 = Slider(min=-360., max=360.)
+#	l1 = Label(text='{}'.format(e1.value))
 #	def trackSliderValue1(self, value):
 #		l1.text = str(value)
 #
@@ -94,8 +103,8 @@ class UI(App):
 		pause_btn.disabled = True
 		layout01.add_widget(stop_btn)
 		stop_btn.disabled = True
-		layout01.add_widget(self.e1)
-		layout01.add_widget(self.l1)
+#		layout01.add_widget(self.e1)
+#		layout01.add_widget(self.l1)
 		layout01.add_widget(exit_btn)
 		layout.add_widget(layout01)
 
@@ -113,33 +122,32 @@ class UI(App):
 		layout.add_widget(layout02)
 		return layout
 
-def run_simulation_inner_loop(queue, stop_request, simulation, counter):
-	filename = "output.txt"
+def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum):
 	p = sum(sum(simulation.landscape.prosperity, []))
 	phase = 1
 	for i in range(15):
 		if stop_request.is_set():
 			stop_request.clear()
-			return 'stop'
-		if i >= 5 and i < 10 and p > 200000:
+			return 1
+		if i >= 5 and i < 10 and p > phase2threshold:
 			phase = 2
-		elif i >= 10 and p > 80000:
+		elif i >= 10 and p > phase3threshold:
 			phase = 3
 		queue.put(simulation.view('{}-{}-{}'.format(counter, phase, i)))
-		simulation.step(phase)
+		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum)
 
-def run_simulation(queue, stop_request, output_request, pause_request, output):
-	simulation = Simulation()
+def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum):
+	simulation = Simulation(size=gridSize)
 	counter = 0
 	while True:
 		if output_request.is_set():
-			simulation.output("output.txt")
+			simulation.output(outputFile)
 			output.set()
 			output_request.clear()
 		if pause_request.is_set():
 			pass
 		counter += 1
-		if run_simulation_inner_loop(queue, stop_request, simulation, counter) == 'stop':
+		if run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum) == 1:
 			stop_request.clear()
 			print("exiting subprocess")
 			exit(0)
@@ -159,7 +167,15 @@ def read_simulation(dt):
 			image = kiImage(source='', pos=kvbox.pos, size=kvbox.size)
 			image.texture = CoreImage(imgData, ext='png').texture
 
-def run_kv():
+def run_kv(o, g, phase2, phase3, ma, mi, by, br):
 	global ui
 	ui = UI()
+	ui.outputFile = o
+	ui.gridSize = g
+	ui.phase2threshold = phase2
+	ui.phase3threshold = phase3
+	ui.maNum = ma
+	ui.miNum = mi
+	ui.byNum = by
+	ui.brNum = br
 	ui.run()
