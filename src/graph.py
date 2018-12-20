@@ -17,6 +17,8 @@ maNum = 10
 miNum = 400
 byNum = 2000
 brNum = 5000
+#buNum = 400
+#agNum = 20
 
 def run_simulation_inner_loop_noui(simulation, counter):
 	p = sum(sum(simulation.landscape.prosperity, []))
@@ -49,6 +51,8 @@ if __name__ == "__main__":
 	parser.add_argument("-mi", "--minor", type=int, help="Minimum local prosperity for a new minor road. Default: 400.")
 	parser.add_argument("-by", "--bypass", type=int, help="Minimum local traffic for a new bypass segment. Default: 2000.")
 	parser.add_argument("-br", "--bridges", type=int, help="Minimum local prosperity for a new bridge. Default: 5000.")
+#	parser.add_argument("-bu", "--buildings", type=int, help="Minimum local prosperity for a new building node. Default: 400.")
+#	parser.add_argument("--a", "--agents", type=int, help="Excess prosperity level for a new agent to move in. Default: 20.")
 
 	args = parser.parse_args()
 	if args.output:
@@ -69,6 +73,10 @@ if __name__ == "__main__":
 		byNum = args.byNum
 	if args.bridges:
 		brNum = args.brNum
+#	if args.buildings:
+#		buNum = args.buildings
+#	if args.agents:
+#		agNum = args.agents
 
 	if args.noui is False:
 		sys.argv = sys.argv[0:1]

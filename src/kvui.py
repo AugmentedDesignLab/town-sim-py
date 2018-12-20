@@ -43,7 +43,7 @@ def button_start(instance):
 		p.start()
 		if read_event is not None:
 			read_event.cancel()
-		read_event = Clock.schedule_interval(read_simulation, 5)
+		read_event = Clock.schedule_interval(read_simulation, 1)
 
 def button_pause(instance):
 	global pause_btn, start_btn
@@ -51,6 +51,7 @@ def button_pause(instance):
 	pause_btn.disabled = True
 	start_btn.disabled = False
 
+	pause_request.set()
 	output_request.set()
         
 def button_exit(exit_btn):
@@ -126,9 +127,15 @@ def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2th
 	p = sum(sum(simulation.landscape.prosperity, []))
 	phase = 1
 	for i in range(15):
+		if output_request.is_set():
+			simulation.output(outputFile)
+			output.set()
+			output_request.clear()
 		if stop_request.is_set():
 			stop_request.clear()
 			return 1
+		if pause_request.is_set():
+			pass
 		if i >= 5 and i < 10 and p > phase2threshold:
 			phase = 2
 		elif i >= 10 and p > phase3threshold:

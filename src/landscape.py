@@ -362,7 +362,6 @@ class Landscape:
 		print("Calculating turns...")
 		turns = set()
 		for (x, y) in rns:
-			print (counted[rns.index((x, y))])
 			if counted[rns.index((x, y))] == 2:
 				turns.add(self.array[x][y])
 		print("Reconstructing roads...")
