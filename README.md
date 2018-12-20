@@ -5,7 +5,7 @@ Outputs a text file which contains lists of roads, and if the road is curved, a 
 
 ## Commandline Options
 ---
-usage: graph.py [-h] [--noui] [-o OUTPUT] [-s SIZE] [-c CYCLES] [-p2 PHASE2]
+```usage: graph.py [-h] [--noui] [-o OUTPUT] [-s SIZE] [-c CYCLES] [-p2 PHASE2]
                 [-p3 PHASE3] [-ma MAJOR] [-mi MINOR] [-by BYPASS]
                 [-br BRIDGES]
 
@@ -36,7 +36,7 @@ optional arguments:
                         Default: 2000.
   -br BRIDGES, --bridges BRIDGES
                         Minimum local prosperity for a new bridge. Default:
-                        5000.
+                        5000.```
 
 ## Piping into SUMO format
 ---
