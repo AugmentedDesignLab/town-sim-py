@@ -119,7 +119,7 @@ class Landscape:
 
 		self.lots.add(Lot(self, [(mx1, my1), (mx1, my2), (mx2, my2), (mx2, my1)]))
 
-	def step(self, round):
+	def step(self, phase, maNum, miNum, byNum, brNum):
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
 		random.shuffle(self.nodes)
 		for node in self.nodes:
@@ -137,25 +137,25 @@ class Landscape:
 				local_traffic = sum([n.traffic() for n in node.range()])
 
 				# major roads
-				if round == 1:
-					if (local_prosperity > 5000) and (len(list(set(node.range()) & set(self.roads))) == 0): #change to major road range for better effect
+				if phase == 1:
+					if (local_prosperity > brNum) and (len(list(set(node.range()) & set(self.roads))) == 0): #change to major road range for better effect
 						# find closest road node, connect to it 
 						self.set_new_road(i, j, Type.MAJOR_ROAD, True)
-					elif (local_prosperity > 10) and (len(list(set(node.range()) & set(self.roads))) == 0):
+					elif (local_prosperity > maNum) and (len(list(set(node.range()) & set(self.roads))) == 0):
 						# find closest road node, connect to it 
 						self.set_new_road(i, j, Type.MAJOR_ROAD)
 					if local_prosperity > 400 and (len(list(set(node.plot()) & set(self.roads))) != 0):
 						self.set_type_building(node.plot())
 
-				elif round == 2:
+				elif phase == 2:
 				# bypasses
-					if (local_traffic > 2000) and (len(list(set(node.range()) & set(self.roads))) == 0):
+					if (local_traffic > byNum) and (len(list(set(node.range()) & set(self.roads))) == 0):
 						#print("match conditions for adding bypass")
 						self.set_new_bypass(i, j)
 
 				# minor roads
-				elif round == 3:
-					if (local_prosperity > 400) and (len(list(set(node.plot()) & set(self.roads))) == 0): 
+				elif phase == 3:
+					if (local_prosperity > miNum) and (len(list(set(node.plot()) & set(self.roads))) == 0): 
 						buildable = True
 						for node in node.plot():
 							if Type.BUILDING not in node.type:
@@ -349,33 +349,30 @@ class Landscape:
 				img[x, y + self.y] = PLOT_color
 
 		img = cv2.resize(img, (2000, 1000))
-#		img = cv2.resize(img, (800, 400))
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
-
-		print("visualizing... ")
 
 		return img
 
 	def output(self, filename):
-		print("printing output")
+		print("Calculating nodes...")
 		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
 		counted = Counter()
 		for rn in self.roadnodes:
 			counted[rns.index((rn.x, rn.y))] += 1
-		print("printing output")
+		print("Calculating turns...")
 		turns = set()
 		for (x, y) in rns:
 			print (counted[rns.index((x, y))])
 			if counted[rns.index((x, y))] == 2:
 				turns.add(self.array[x][y])
-		print("printing output")
+		print("Reconstructing roads...")
 		for turn in turns:
 			[rs1, rs2] = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
 			rs1.merge(rs2, turn, self.roadsegments)
-		print("saving output to file")
 		with open(filename, "w") as file:
 			for rs in self.roadsegments:
 				print("{},{},{}".format(
 					(rs.rnode1.x, rs.rnode1.y),
 					(rs.rnode2.x, rs.rnode2.y),
 					rs.shape), file=file)
+		print("Output saved to file.")
