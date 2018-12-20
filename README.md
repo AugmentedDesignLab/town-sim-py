@@ -5,7 +5,7 @@ Outputs a text file which contains lists of roads, and if the road is curved, a 
 
 ## Commandline Options
 ---
-```bash
+```
 usage: graph.py [-h] [--noui] [-o OUTPUT] [-s SIZE] [-c CYCLES] [-p2 PHASE2]
                 [-p3 PHASE3] [-ma MAJOR] [-mi MINOR] [-by BYPASS]
                 [-br BRIDGES]
