@@ -43,7 +43,7 @@ def button_start(instance):
 		p.start()
 		if read_event is not None:
 			read_event.cancel()
-		read_event = Clock.schedule_interval(read_simulation, 5)
+		read_event = Clock.schedule_interval(read_simulation, 1)
 
 def button_pause(instance):
 	global pause_btn, start_btn
