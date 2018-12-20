@@ -95,7 +95,6 @@ def check_turn_and_endpoint(node, roads, turns, roadnodes):
 				print("Unexpected node type.")
 
 			turns.add((node.x, node.y))
-			#print("found turn")
 
 			'''
 			# if neighbors of point are the same type
@@ -123,12 +122,10 @@ def check_overlapping_nodes(nodes):
 	return nodes_final
 	for node in nodes:
 		if node in nodes_final:
-			print("check overlap")
 			check = node.adjacent.copy()
 			while len(check) > 0:
 				n = check.pop()
 				if n in nodes_final:
-					print("found overlap")
 					nodes_final.remove(n)
 					new_adjacents = n.adjacent - node.adjacent
 					new_adjacents.discard(node)
