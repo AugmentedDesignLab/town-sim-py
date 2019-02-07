@@ -366,8 +366,11 @@ class Landscape:
 				turns.add(self.array[x][y])
 		print("Reconstructing roads...")
 		for turn in turns:
-			[rs1, rs2] = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
-			rs1.merge(rs2, turn, self.roadsegments)
+			rsarray = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
+			if len(rsarray) > 2:
+				rs1 = rsarray[0]
+				rs2 = rsarray[1]
+				rs1.merge(rs2, turn, self.roadsegments)
 		with open(filename, "w") as file:
 			for rs in self.roadsegments:
 				print("{},{},{}".format(
