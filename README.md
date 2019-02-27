@@ -52,3 +52,7 @@ Ex.
 ```
 netgenerate --town-sim --town-sim.file="output.txt" --output-file="NewSUMOFile.net.xml"
 ```
+
+## Bugs
+---
+The output function is set up such that the lists of road nodes and segments can be messed up if outputting twice in one simulation.
