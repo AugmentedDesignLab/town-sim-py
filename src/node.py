@@ -102,3 +102,50 @@ class Node:
 			return lot
 		else:
 			return None
+
+	def get_neighboring_junctions(self, roadsegments):
+		neighboring_junctions = set()
+		for rs in roadsegments:
+			if rs.rnode1 == self:
+				neighboring_junctions.add(rs.rnode2)
+			elif rs.rnode2 == self:
+				neighboring_junctions.add(rs.rnode1)
+		return neighboring_junctions
+
+	def get_connectivity(self, roadsegments):
+		return len(self.get_neighboring_junctions(roadsegments))
+
+	def get_local_depth(self, roadsegments, m):
+		temp_set = set()
+		temp_set.update(self.get_neighboring_junctions(roadsegments))
+		count = len(temp_set)
+
+		for i in range(2, m+1):
+			temp_adjacents = set()
+			for n in temp_set:
+				temp_adjacents.update(n.get_neighboring_junctions(roadsegments))
+			count += len(temp_adjacents - temp_set) * i
+			temp_set.update(temp_adjacents)
+
+		return count
+
+
+	def get_global_depth(self, roadsegments):
+		temp_set = set()
+		temp_set.update(self.get_neighboring_junctions(roadsegments))
+		count = len(temp_set)
+		s = 1
+
+		temp_adjacents = set()
+		for n in temp_set:
+			temp_adjacents.update(n.get_neighboring_junctions(roadsegments))
+
+		while len(temp_adjacents - temp_set) > 0:
+			s += 1
+			count += len(temp_adjacents - temp_set) * s
+			temp_set.update(temp_adjacents)
+			temp_adjacents = set()
+			for n in temp_set:
+				temp_adjacents.update(n.get_neighboring_junctions(roadsegments))
+
+		return count

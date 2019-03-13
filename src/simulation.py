@@ -8,6 +8,7 @@ import time
 from agent import Agent
 from landscape import Landscape
 from lot import Lot
+import gc
 
 class Simulation:
 	def __init__(self, size=200):
@@ -17,10 +18,14 @@ class Simulation:
 			self.add_agent(Agent(self.landscape, self))
 
 	def step(self, phase, maNum=10, miNum=400, byNum=2000, brNum=5000):
-		for agent in copy.copy(self.agents):
+		killlist = []
+		for agent in self.agents:
 			agent.step(self.landscape)
 			if agent.water < 0 or agent.resource < 0:
-				self.kill(agent)
+				killlist.append(agent)
+		for agent in killlist:
+			self.kill(agent)
+		gc.collect()
 		self.landscape.step(phase, maNum, miNum, byNum, brNum)
 
 	def add_agent(self, agent):

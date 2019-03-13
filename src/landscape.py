@@ -378,3 +378,18 @@ class Landscape:
 					(rs.rnode2.x, rs.rnode2.y),
 					rs.shape), file=file)
 		print("Output saved to file.")
+
+		'''
+		space syntax analysis
+		=====================
+		k local neighborhood: 1 < k < l
+		l maximum "shortest distance"
+		'''
+		with open('stats_' + filename, "w") as file:
+			for junction in set([rs.rnode1 for rs in self.roadsegments] + [rs.rnode2 for rs in self.roadsegments]):
+				connectivity = junction.get_connectivity(self.roadsegments)
+				local_depth = junction.get_local_depth(self.roadsegments, 3)
+				global_depth = junction.get_global_depth(self.roadsegments)
+				print("({}, {}):  	connectivity: {},  	local depth: {},  	global depth: {}".format(
+					junction.x, junction.y, connectivity, local_depth, global_depth), file=file)
+		print("Stats saved to file.")
