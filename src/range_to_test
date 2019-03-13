@@ -2,7 +2,7 @@
 
 -p2 40000, 80000, 100000, 200000*, 400000, 800000
 -p3 20000, 40000, 80000*, 100000, 200000, 400000
--ma 5, 10*, 15, 20@, 30, 50
+-ma 5, 10, 15, 20*, 30, 50
 -mi 100, 200, 400*, 800, 1000, 2000
 -by 400, 800, 1000, 2000*, 4000, 8000
 -r1 3*
@@ -17,7 +17,6 @@
 1. lower mi:ma results in more windy mi roads
 
 check broken roads?
-range should include distance between mi/ma roads
 
 *^test
 
@@ -27,3 +26,7 @@ parameter variation screenshots
 river crossing
 radial bypass screenshots sequence ... point to it 
 garden conversion (even though it doesn't do anything)
+
+0. add code to parametrize decay speed
+1. write save state code
+2. confirm that bypasses work 

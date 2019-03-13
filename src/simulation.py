@@ -17,7 +17,7 @@ class Simulation:
 		for i in range(100): #200
 			self.add_agent(Agent(self.landscape, self))
 
-	def step(self, phase, maNum=10, miNum=400, byNum=2000, brNum=5000, buNum=400):
+	def step(self, phase, maNum=20, miNum=400, byNum=2000, brNum=5000, buNum=400):
 		killlist = []
 		for agent in self.agents:
 			agent.step(self.landscape)

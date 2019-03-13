@@ -136,10 +136,10 @@ class Landscape:
 
 				# major roads
 				if phase == 1:
-					if node.local_prosperity > brNum and (len(set(node.range()) & set(self.roads)) == 0): #change to major road range for better effect
+					if node.local_prosperity > brNum and (len(set(node.major_road_range()) & set(self.roads)) == 0): #change to major road range for better effect
 						# find closest road node, connect to it 
 						self.set_new_road(i, j, Type.MAJOR_ROAD, True)
-					elif node.local_prosperity > maNum and (len(set(node.range()) & set(self.roads)) == 0):
+					elif node.local_prosperity > maNum and (len(set(node.major_road_range()) & set(self.roads)) == 0):
 						# find closest road node, connect to it 
 						self.set_new_road(i, j, Type.MAJOR_ROAD)
 					if node.local_prosperity > buNum and (len(set(node.plot()) & set(self.roads)) != 0):
@@ -147,13 +147,13 @@ class Landscape:
 
 				elif phase == 2:
 				# bypasses
-					if node.local_traffic > byNum and (len(set(node.range()) & set(self.roads)) == 0):
+					if node.local_traffic > byNum and (len(set(node.major_road_range()) & set(self.roads)) == 0):
 						#print("match conditions for adding bypass")
 						self.set_new_bypass(i, j)
 
 				# minor roads
 				elif phase == 3:
-					if node.local_prosperity > miNum and (len(set(node.plot()) & set(self.roads)) == 0): 
+					if node.local_prosperity > miNum and (len(set(node.local()) & set(self.roads)) == 0): 
 						buildable = True
 						for node in node.plot():
 							if Type.BUILDING not in node.type:
