@@ -112,7 +112,7 @@ class Agent:
 				gathered = max(self.water_max - self.water, 10)
 				self.water += gathered
 		else:
-			places = [l for l in local if Type.FOREST in l.type or Type.GREEN in l.type or (Type.BUILDING in l.type and l.prosperity() > 300)]
+			places = [l for l in local if (Type.BUILDING in l.type and l.prosperity() > 300) or Type.FOREST in l.type or Type.GREEN in l.type]
 			if len(places) > 0:
 				place = random.choice(places)
 				if Type.BUILDING in place.type:

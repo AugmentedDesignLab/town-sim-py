@@ -70,9 +70,9 @@ if __name__ == "__main__":
 	if args.minor:
 		miNum = args.minor
 	if args.bypass:
-		byNum = args.byNum
+		byNum = args.bypass
 	if args.bridges:
-		brNum = args.brNum
+		brNum = args.bridges
 #	if args.buildings:
 #		buNum = args.buildings
 #	if args.agents:

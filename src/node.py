@@ -13,7 +13,7 @@ class Node:
 		self.x = x
 		self.y = y
 		self.agents = []
-		self.type = [Type.GREEN if random.random() > 0.5 else Type.FOREST]
+		self.type = set([Type.GREEN if random.random() > 0.5 else Type.FOREST])
 		self.__plot = None
 		self.__local = None
 		self.__range = None
@@ -34,7 +34,7 @@ class Node:
 		self.agents.remove(agent)
 
 	def add_type(self, t):
-		self.type.append(t)
+		self.type.add(t)
 
 	def rem_type(self, t):
 		self.type.remove(t)
@@ -42,7 +42,7 @@ class Node:
 	def clear_type(self):
 		if self in self.landscape.built:
 			self.landscape.built.remove(self)
-		self.type = []
+		self.type.clear()
 
 	def add_prosperity(self, amt):
 		self.landscape.prosperity[self.x][self.y] += amt
