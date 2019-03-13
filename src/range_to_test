@@ -1,0 +1,14 @@
+-s 200*
+
+-p2 40000, 80000, 100000, 200000*, 400000, 800000
+-p3 20000, 40000, 80000*, 100000, 200000, 400000
+-ma 5, 10*, 15, 20@, 30, 50
+-mi 100, 200, 400*, 800, 1000, 2000
+-by 400,800, 1000, 2000*, 4000, 8000
+
+*is default in code
+@use as default in test
+
+1. higher (relative?) ma threshold results in more windy mi roads
+
+check broken roads?

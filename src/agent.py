@@ -28,7 +28,7 @@ class Agent:
 	def move(self, node):
 		(ax, ay) = get_pt_avg([(self.x, self.y), (node.x, node.y)])
 		(mid_x, mid_y) = (int(ax), int(ay))
-		if len(list(set(self.landscape.array[mid_x][mid_y].local()) & set(self.landscape.bypass_roads))) == 0:
+		if len(set(self.landscape.array[mid_x][mid_y].local()) & set(self.landscape.bypass_roads)) == 0:
 			self.landscape.add_traffic(mid_x, mid_y, 10)
 		self.x = node.x
 		self.y = node.y
@@ -42,13 +42,10 @@ class Agent:
 
 		self.work()
 		if len(self.node.agents) > 1:
-			self.trade(random.choice([e for e in self.node.agents if e is not self]))
+			self.trade(random.choice(self.node.agents))
 		self.rest(landscape)
-
-		local_prosperity = sum([n.prosperity() for n in self.node.local()])
-		local_pop = sum([len(n.agents) for n in self.node.local()])
 		
-		if local_prosperity / 20 - len(self.node.agents) > 20 and local_pop < 50 and self.water > 2 and self.resource > 2:
+		if self.water > 10 and self.resource > 10 and random.random() < 0.5:
 			agent = Agent(landscape, self.simulation, self.x, self.y)
 			self.water = agent.water = self.water / 2
 			self.resource = agent.resource = self.resource / 2
@@ -87,6 +84,8 @@ class Agent:
 	def trade(self, other):
 		#trade price will be average of buy and sell value
 		#print("trying to trade")
+		if self is other:
+			return
 		if self.water > 4:
 			p = self.water_price() 
 			if p < other.water_price():
@@ -110,7 +109,7 @@ class Agent:
 				place = random.choice(places)
 				place.add_prosperity(10)
 				self.move(place)
-				gathered = max(self.water - self.water, 10)
+				gathered = max(self.water_max - self.water, 10)
 				self.water += gathered
 		else:
 			places = [l for l in local if Type.FOREST in l.type or Type.GREEN in l.type or (Type.BUILDING in l.type and l.prosperity() > 300)]

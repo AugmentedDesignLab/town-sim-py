@@ -19,6 +19,7 @@ class Node:
 		self.__range = None
 		self.__major_road_range = None
 		self.lot = None
+		self.local_prosperity = 0
 
 	def add_adjacent(self, node):
 		self.adjacent.add(node)

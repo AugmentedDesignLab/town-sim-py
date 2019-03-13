@@ -124,38 +124,36 @@ class Landscape:
 		random.shuffle(self.nodes)
 		for node in self.nodes:
 			(i, j) = (node.x, node.y)
-			if self.prosperity[i][j] > 0:
-				self.prosperity[i][j] *= 0.75
-			if self.traffic[i][j] > 0:
-				self.traffic[i][j] *= 0.25
+			self.prosperity[i][j] *= 0.75
+			self.traffic[i][j] *= 0.25
 
 			# calculate roads
 			if Type.GREEN in node.type or Type.FOREST in node.type \
 				or Type.BUILDING in node.type:
 
-				local_prosperity = sum([n.prosperity() for n in node.local()])
-				local_traffic = sum([n.traffic() for n in node.range()])
+				node.local_prosperity = sum([n.prosperity() for n in node.local()])
+				node.local_traffic = sum([n.traffic() for n in node.range()])
 
 				# major roads
 				if phase == 1:
-					if (local_prosperity > brNum) and (len(list(set(node.range()) & set(self.roads))) == 0): #change to major road range for better effect
+					if node.local_prosperity > brNum and (len(set(node.range()) & set(self.roads)) == 0): #change to major road range for better effect
 						# find closest road node, connect to it 
 						self.set_new_road(i, j, Type.MAJOR_ROAD, True)
-					elif (local_prosperity > maNum) and (len(list(set(node.range()) & set(self.roads))) == 0):
+					elif node.local_prosperity > maNum and (len(set(node.range()) & set(self.roads)) == 0):
 						# find closest road node, connect to it 
 						self.set_new_road(i, j, Type.MAJOR_ROAD)
-					if local_prosperity > 400 and (len(list(set(node.plot()) & set(self.roads))) != 0):
+					if node.local_prosperity > 400 and (len(set(node.plot()) & set(self.roads)) != 0):
 						self.set_type_building(node.plot())
 
 				elif phase == 2:
 				# bypasses
-					if (local_traffic > byNum) and (len(list(set(node.range()) & set(self.roads))) == 0):
+					if node.local_traffic > byNum and (len(set(node.range()) & set(self.roads)) == 0):
 						#print("match conditions for adding bypass")
 						self.set_new_bypass(i, j)
 
 				# minor roads
 				elif phase == 3:
-					if (local_prosperity > miNum) and (len(list(set(node.plot()) & set(self.roads))) == 0): 
+					if node.local_prosperity > miNum and (len(set(node.plot()) & set(self.roads)) == 0): 
 						buildable = True
 						for node in node.plot():
 							if Type.BUILDING not in node.type:
