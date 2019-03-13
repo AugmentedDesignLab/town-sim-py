@@ -18,6 +18,7 @@ import numpy as np
 from PIL import Image
 
 from simulation import Simulation
+from util import Params
 
 Config.set('kivy', 'exit_on_escape', '0')
 
@@ -38,7 +39,7 @@ def button_start(instance):
 		pause_request = Event()	
 		output = Event()
 
-		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output, ui.phase2threshold, ui.phase3threshold, ui.gridSize, ui.outputFile, ui.maNum, ui.miNum, ui.byNum, ui.brNum))
+		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output, ui.phase2threshold, ui.phase3threshold, ui.gridSize, ui.outputFile, ui.maNum, ui.miNum, ui.byNum, ui.brNum, ui.r1, ui.r2, ui.r3, ui.r4))
 		p.daemon = True
 		p.start()
 		if read_event is not None:
@@ -82,6 +83,9 @@ class UI(App):
 	miNum = 400
 	byNum = 2000
 	brNum = 5000
+	r1Num = 3
+	r2Num = 5
+	r3Num = 10
 
 #	e1 = Slider(min=-360., max=360.)
 #	l1 = Label(text='{}'.format(e1.value))
@@ -123,7 +127,7 @@ class UI(App):
 		layout.add_widget(layout02)
 		return layout
 
-def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum):
+def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum):
 	p = sum(sum(simulation.landscape.prosperity, []))
 	phase = 1
 	for i in range(15):
@@ -141,10 +145,10 @@ def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2th
 		elif i >= 10 and p > phase3threshold:
 			phase = 3
 		queue.put(simulation.view('{}-{}-{}'.format(counter, phase, i)))
-		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum)
+		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum)
 
-def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum):
-	simulation = Simulation(size=gridSize)
+def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4):
+	simulation = Simulation(size=gridSize, r1, r2, r3, r4)
 	counter = 0
 	while True:
 		if output_request.is_set():
@@ -154,7 +158,7 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 		if pause_request.is_set():
 			pass
 		counter += 1
-		if run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum) == 1:
+		if run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum) == 1:
 			stop_request.clear()
 			print("exiting subprocess")
 			exit(0)
@@ -174,7 +178,7 @@ def read_simulation(dt):
 			image = kiImage(source='', pos=kvbox.pos, size=kvbox.size)
 			image.texture = CoreImage(imgData, ext='png').texture
 
-def run_kv(o, g, phase2, phase3, ma, mi, by, br):
+def run_kv(o, g, phase2, phase3, ma, mi, by, br, r1, r2, r3, r4, buNum):
 	global ui
 	ui = UI()
 	ui.outputFile = o
@@ -185,4 +189,9 @@ def run_kv(o, g, phase2, phase3, ma, mi, by, br):
 	ui.miNum = mi
 	ui.byNum = by
 	ui.brNum = br
+	ui.r1 = r1
+	ui.r2 = r2
+	ui.r3 = r3
+	ui.r4 = r4
+	ui.buNum = buNum
 	ui.run()

@@ -15,13 +15,13 @@ from util import Type, get_line, check_turn_and_endpoint, check_overlapping_node
 from util2 import get_closest_point, get_point_to_close_gap_minor, get_point_to_close_gap_major
 
 class Landscape:
-	def __init__(self, x, y, simulation):
+	def __init__(self, x, y, simulation, r1, r2, r3, r4):
 		self.roadnodes = []
 		self.roadsegments = set()
 		self.x = x
 		self.y = y
 		self.simulation = simulation
-		self.array = [[Node(i, j, self) for j in range(y)] for i in range(x)]
+		self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
 		self.nodes = [node for row in self.array for node in row]
 		self.prosperity = [[0 for j in range(y)] for i in range(x)]
 		self.traffic = [[0 for j in range(y)] for i in range(x)]
@@ -119,7 +119,7 @@ class Landscape:
 
 		self.lots.add(Lot(self, [(mx1, my1), (mx1, my2), (mx2, my2), (mx2, my1)]))
 
-	def step(self, phase, maNum, miNum, byNum, brNum):
+	def step(self, phase, maNum, miNum, byNum, brNum, buNum):
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
 		random.shuffle(self.nodes)
 		for node in self.nodes:
@@ -142,7 +142,7 @@ class Landscape:
 					elif node.local_prosperity > maNum and (len(set(node.range()) & set(self.roads)) == 0):
 						# find closest road node, connect to it 
 						self.set_new_road(i, j, Type.MAJOR_ROAD)
-					if node.local_prosperity > 400 and (len(set(node.plot()) & set(self.roads)) != 0):
+					if node.local_prosperity > buNum and (len(set(node.plot()) & set(self.roads)) != 0):
 						self.set_type_building(node.plot())
 
 				elif phase == 2:
@@ -235,7 +235,7 @@ class Landscape:
 			node = self.array[x][y]
 			nodes.append(node)
 
-		if len(list(set(nodes) & set(self.bypass_roads))) > 3:
+		if len(set(nodes) & set(self.bypass_roads)) > 3:
 			return
 
 		for node in nodes:

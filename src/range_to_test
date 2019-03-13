@@ -5,6 +5,11 @@
 -ma 5, 10*, 15, 20@, 30, 50
 -mi 100, 200, 400*, 800, 1000, 2000
 -by 400, 800, 1000, 2000*, 4000, 8000
+-r1 3*
+-r2 5*
+-r3 10*
+-r4 10*
+-bu 400*
 
 *is default in code
 @use as default in test
@@ -13,3 +18,12 @@
 
 check broken roads?
 range should include distance between mi/ma roads
+
+*^test
+
+parameter variation screenshots
+
+8-10 image sequence showing growth 
+river crossing
+radial bypass screenshots sequence ... point to it 
+garden conversion (even though it doesn't do anything)

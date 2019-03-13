@@ -6,7 +6,7 @@ import random
 from util import Type
 
 class Node:
-	def __init__(self, x, y, landscape):
+	def __init__(self, x, y, landscape, r1=3, r2=5, r3=10, r4=10):
 		self.landscape = landscape
 		self.adjacent = set()
 		self.neighbors = set()
@@ -20,6 +20,10 @@ class Node:
 		self.__major_road_range = None
 		self.lot = None
 		self.local_prosperity = 0
+		self.plot_range = r1
+		self.local_range = r2
+		self.explore_range = r3
+		self.major_road_range = r4
 
 	def add_adjacent(self, node):
 		self.adjacent.add(node)
@@ -73,27 +77,27 @@ class Node:
 			self.get_local()
 		return self.__major_road_range
 
-	def get_local(self, plot = 3, local_range = 5, explore_range = 10, major_road_range = 10):
+	def get_local(self):
 		local = set([self])
-		for i in range(1, local_range + 1):
+		for i in range(1, self.local_range + 1):
 			local.update(set([e for n in [s for s in local] for e in n.neighbors if Type.WATER not in e.type]))
-			if i == plot:
+			if i == self.plot_range:
 				self.__plot = list(local)
-			if i == local_range:
+			if i == self.local_range:
 				self.__local = list(local)
 
 		local = set([self])
-		for i in range(1, major_road_range + 1):
+		for i in range(1, self.major_road_range + 1):
 			local.update(set([e for n in [s for s in local] for e in n.neighbors]))
 
-			if i == explore_range:
+			if i == self.explore_range:
 				self.__range = list(local)
-			if i == major_road_range:
+			if i == self.major_road_range:
 				self.__major_road_range = list(local)
 
 	def get_lot(self):
 		lot = set([self])
-		for i in range(15):
+		for i in range(10):
 			neighbors = set([e for n in [s for s in lot] for e in n.neighbors if (Type.GREEN in e.type or Type.FOREST in e.type or Type.BUILDING in e.type)])
 			if len(neighbors - lot) == 0:
 				break

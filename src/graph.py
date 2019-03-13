@@ -17,8 +17,11 @@ maNum = 10
 miNum = 400
 byNum = 2000
 brNum = 5000
-#buNum = 400
-#agNum = 20
+r1 = 3
+r2 = 5
+r3 = 10
+r4 = 10
+buNum = 400
 
 def run_simulation_inner_loop_noui(simulation, counter):
 	p = sum(sum(simulation.landscape.prosperity, []))
@@ -51,8 +54,12 @@ if __name__ == "__main__":
 	parser.add_argument("-mi", "--minor", type=int, help="Minimum local prosperity for a new minor road. Default: 400.")
 	parser.add_argument("-by", "--bypass", type=int, help="Minimum local traffic for a new bypass segment. Default: 2000.")
 	parser.add_argument("-br", "--bridges", type=int, help="Minimum local prosperity for a new bridge. Default: 5000.")
-#	parser.add_argument("-bu", "--buildings", type=int, help="Minimum local prosperity for a new building node. Default: 400.")
-#	parser.add_argument("--a", "--agents", type=int, help="Excess prosperity level for a new agent to move in. Default: 20.")
+	parser.add_argument("-bu", "--buildings", type=int, help="Minimum local prosperity for a new building node. Default: 400.")
+	parser.add_argument("-r1", "--plot", type=int, help="Radial range for plot size. Default: 3.")
+	parser.add_argument("-r2", "--local", type=int, help="Radial range for local range. Default: 5.")
+	parser.add_argument("-r3", "--explore", type=int, help="Radial range for explore range. Default: 10.")
+	parser.add_argument("-r4", "--majorroadrange", type=int, help="Radial range for major road range. Default: 10.")
+
 
 	args = parser.parse_args()
 	if args.output:
@@ -73,15 +80,21 @@ if __name__ == "__main__":
 		byNum = args.bypass
 	if args.bridges:
 		brNum = args.bridges
-#	if args.buildings:
-#		buNum = args.buildings
-#	if args.agents:
-#		agNum = args.agents
+	if args.buildings:
+		buNum = args.buildings
+	if args.plot:
+		r1 = args.plot
+	if args.local:
+		r2 = args.local
+	if args.explore:
+		r3 = args.explore
+	if args.majorroadrange:
+		r4 = args.majorroadrange
 
 	if args.noui is False:
 		sys.argv = sys.argv[0:1]
 		import kvui
-		kvui.run_kv(outputFile, gridSize, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum)
+		kvui.run_kv(outputFile, gridSize, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum)
 	else:
 		# do no ui things
 		print ("This might take a while.")
