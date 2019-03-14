@@ -94,7 +94,7 @@ class Node:
 	def get_local(self):
 		local = set([self])
 		for i in range(1, self.local_range + 1):
-			local.update(set([e for n in [s for s in local] for e in n.neighbors if Type.WATER not in e.type]))
+			local.update(set([e for n in local for e in n.neighbors if Type.WATER not in e.type]))
 			if i == self.plot_range:
 				self.__plot = list(local)
 			if i == self.local_range:
@@ -102,7 +102,7 @@ class Node:
 
 		local = set([self])
 		for i in range(1, self.maroad_range + 1):
-			local.update(set([e for n in [s for s in local] for e in n.neighbors]))
+			local.update(set([e for n in local for e in n.neighbors]))
 
 			if i == self.explore_range:
 				self.__range = list(local)
@@ -115,11 +115,11 @@ class Node:
 	def get_lot(self):
 		lot = set([self])
 		for i in range(10):
-			neighbors = set([e for n in [s for s in lot] for e in n.neighbors if (Type.GREEN in e.type or Type.FOREST in e.type or Type.BUILDING in e.type)])
+			neighbors = set([e for n in lot for e in n.neighbors if (Type.GREEN in e.type or Type.FOREST in e.type or Type.BUILDING in e.type)])
 			if len(neighbors - lot) == 0:
 				break
 			lot.update(neighbors)
-		neighbors = set([e for n in [s for s in lot] for e in n.neighbors if (Type.GREEN in e.type or Type.FOREST in e.type or Type.BUILDING in e.type)])
+		neighbors = set([e for n in lot for e in n.neighbors if (Type.GREEN in e.type or Type.FOREST in e.type or Type.BUILDING in e.type)])
 		if len(neighbors - lot) == 0:
 			return lot
 		else:

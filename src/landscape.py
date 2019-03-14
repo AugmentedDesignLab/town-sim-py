@@ -103,7 +103,6 @@ class Landscape:
 		n2 = np.random.choice(n2_options, replace=False)
 		points = get_line((n1.x, n1.y), (n2.x, n2.y))
 		while any(Type.WATER in self.array[x][y].type for (x, y) in points):
-			print("trying again")
 			n2 = np.random.choice(n2_options, replace=False)
 			points = get_line((n1.x, n1.y), (n2.x, n2.y))
 
