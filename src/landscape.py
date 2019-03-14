@@ -124,12 +124,13 @@ class Landscape:
 		random.shuffle(self.nodes)
 		for node in self.nodes:
 			(i, j) = (node.x, node.y)
+			if self.prosperity[i][j] == 0 and self.traffic[i][j] == 0:
+				continue
 			self.prosperity[i][j] *= pDecay
 			self.traffic[i][j] *= tDecay
 
 			# calculate roads
-			if Type.GREEN in node.type or Type.FOREST in node.type \
-				or Type.BUILDING in node.type:
+			if Type.GREEN in node.type or Type.FOREST in node.type or Type.BUILDING in node.type:
 
 				node.local_prosperity = sum([n.prosperity() for n in node.local()])
 				node.local_traffic = sum([n.traffic() for n in node.range()])
