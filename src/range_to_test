@@ -5,11 +5,12 @@
 -ma 5, 10, 15, 20*, 30, 50
 -mi 100, 200, 400*, 800, 1000, 2000
 -by 400, 800, 1000, 2000*, 4000, 8000
+-br 5000*
+-bu 400*
 -r1 3*
 -r2 5*
 -r3 10*
 -r4 10*
--bu 400*
 
 *is default in code
 @use as default in test
@@ -27,6 +28,6 @@ river crossing
 radial bypass screenshots sequence ... point to it 
 garden conversion (even though it doesn't do anything)
 
-0. add code to parametrize decay speed
 1. write save state code
 2. confirm that bypasses work 
+3. fix bridges -- they cross water too easily
