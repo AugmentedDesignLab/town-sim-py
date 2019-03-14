@@ -127,7 +127,7 @@ class UI(App):
 		return layout
 
 def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay):
-	p = sum(sum(simulation.landscape.prosperity, []))
+	p = np.sum(simulation.landscape.prosperity)
 	phase = 1
 	for i in range(15):
 		if output_request.is_set():

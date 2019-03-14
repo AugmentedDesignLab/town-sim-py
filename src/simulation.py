@@ -18,6 +18,7 @@ class Simulation:
 			self.add_agent(Agent(self.landscape, self))
 
 	def step(self, phase, maNum=20, miNum=400, byNum=2000, brNum=5000, buNum=400, pDecay=0.75, tDecay=0.25):
+		self.landscape.step(phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay)
 		killlist = []
 		for agent in self.agents:
 			agent.step(self.landscape)
@@ -26,7 +27,6 @@ class Simulation:
 		for agent in killlist:
 			self.kill(agent)
 		gc.collect()
-		self.landscape.step(phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay)
 
 	def add_agent(self, agent):
 		self.agents.append(agent)

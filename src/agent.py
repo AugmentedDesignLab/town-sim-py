@@ -104,7 +104,7 @@ class Agent:
 		prioritize_water = True if self.water <= 2 else False
 		
 		if prioritize_water:
-			places = [l for l in local if Type.WATER in l.type]
+			places = self.node.water_neighbors()
 			if len(places) > 0:
 				place = random.choice(places)
 				place.add_prosperity(10)
@@ -112,7 +112,7 @@ class Agent:
 				gathered = max(self.water_max - self.water, 10)
 				self.water += gathered
 		else:
-			places = [l for l in local if (Type.BUILDING in l.type and l.prosperity() > 300) or Type.FOREST in l.type or Type.GREEN in l.type]
+			places = self.node.resource_neighbors()
 			if len(places) > 0:
 				place = random.choice(places)
 				if Type.BUILDING in place.type:

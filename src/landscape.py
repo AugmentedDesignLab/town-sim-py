@@ -23,8 +23,8 @@ class Landscape:
 		self.simulation = simulation
 		self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
 		self.nodes = [node for row in self.array for node in row]
-		self.prosperity = [[0 for j in range(y)] for i in range(x)]
-		self.traffic = [[0 for j in range(y)] for i in range(x)]
+		self.prosperity = np.zeros((x, y)) #[[0 for j in range(y)] for i in range(x)]
+		self.traffic = np.zeros((x, y)) #[[0 for j in range(y)] for i in range(x)]
 
 		self.built = set()
 		self.roads = []
@@ -71,10 +71,10 @@ class Landscape:
 		self.array[agent.x][agent.y].remove_agent(agent)
 
 	def add_traffic(self, x, y, amt):
-		self.traffic[x][y] += amt
+		self.traffic[x, y] += amt
 
 	def traffic(self, x, y):
-		return self.traffic[x][y]
+		return self.traffic[x, y]
 
 	def init_geography(self):
 		# TODO
@@ -124,10 +124,12 @@ class Landscape:
 		random.shuffle(self.nodes)
 		for node in self.nodes:
 			(i, j) = (node.x, node.y)
-			if self.prosperity[i][j] == 0 and self.traffic[i][j] == 0:
+			if self.prosperity[i, j] == 0 and self.traffic[i, j] == 0:
 				continue
-			self.prosperity[i][j] *= pDecay
-			self.traffic[i][j] *= tDecay
+			self.prosperity[i, j] *= pDecay
+			self.traffic[i, j] *= tDecay
+			if len(node.agents) > 0:
+				node.get_local()
 
 			# calculate roads
 			if Type.GREEN in node.type or Type.FOREST in node.type or Type.BUILDING in node.type:
@@ -258,9 +260,9 @@ class Landscape:
 			for node in (node1, node2):
 				if node in self.bypass_nodes:
 					self.bypass_nodes.remove(node)
-					self.traffic[node.x][node.y] = 0
+					self.traffic[node.x, node.y] = 0
 					for n in node.range():
-						self.traffic[n.x][n.y] = 0
+						self.traffic[n.x, n.y] = 0
 		
 		#print("bypass added")
 

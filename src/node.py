@@ -24,6 +24,20 @@ class Node:
 		self.local_range = r2
 		self.explore_range = r3
 		self.maroad_range = r4
+		self.__water_neighbors = []
+		self.__resource_neighbors = []
+
+	def get_water_neighbors(self):
+		self.__water_neighbors = [l for l in self.range() if Type.WATER in l.type]
+
+	def water_neighbors(self):
+		return self.__water_neighbors
+
+	def get_resource_neighbors(self):
+		self.__resource_neighbors = [l for l in self.range() if (Type.BUILDING in l.type and l.prosperity() > 300) or Type.FOREST in l.type or Type.GREEN in l.type]
+
+	def resource_neighbors(self):
+		return self.__resource_neighbors
 
 	def add_adjacent(self, node):
 		self.adjacent.add(node)
@@ -49,13 +63,13 @@ class Node:
 		self.type.clear()
 
 	def add_prosperity(self, amt):
-		self.landscape.prosperity[self.x][self.y] += amt
+		self.landscape.prosperity[self.x, self.y] += amt
 
 	def prosperity(self):
-		return self.landscape.prosperity[self.x][self.y]
+		return self.landscape.prosperity[self.x, self.y]
 
 	def traffic(self):
-		return self.landscape.traffic[self.x][self.y]
+		return self.landscape.traffic[self.x, self.y]
 
 	def plot(self):
 		if self.__plot is None:
@@ -94,6 +108,9 @@ class Node:
 				self.__range = list(local)
 			if i == self.maroad_range:
 				self.__major_road_range = list(local)
+
+		self.get_water_neighbors()
+		self.get_resource_neighbors()
 
 	def get_lot(self):
 		lot = set([self])
