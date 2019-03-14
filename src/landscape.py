@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 from PIL import Image
 import random
+from scipy.interpolate import splrep, splev
 
 from lot import Lot
 from node import Node
@@ -77,28 +78,37 @@ class Landscape:
 		return self.traffic[x, y]
 
 	def init_geography(self):
-		# TODO
-		# random.choices is better in python3.7
-		[x1, x2] = random.sample(range(self.x), k=2)
-		[y1, y2] = random.sample(range(self.y), k=2)
-		(x1, x2) = self.init_main_st(x1, y1, x2, y2)
+		pts = self.get_water_body()
+		while len(pts) < 10:
+			pts = self.get_water_body()
 
-		pos = random.choice([x for x in range(self.x) if x not in range(x1, x2+1) and (abs(x-x1) < 25 and abs(x-x2) < 25) ])
-		if pos + 3 in range(x1, x2+1):
-			pos = range(pos, pos+3)
-		else:
-			pos = range(pos-3, pos)
-		for i in pos:
-			for j in range(self.y):
-				self.array[i][j].clear_type()
-				self.array[i][j].add_type(Type.WATER)
+		for (x, y) in pts:
+			node = self.array[x][y]
+			node.clear_type()
+			node.add_type(Type.WATER)
+			for n in node.neighbors:
+				n.clear_type()
+				n.add_type(Type.WATER)
 
-	def init_main_st(self, x1, y1, x2, y2):
-		points = get_line((x1, y1), (x2, y2))
-		endpt = min(20, len(points))
-		points = points[0:endpt]
+		self.init_main_st(pts)
+
+	def init_main_st(self, water_pts):
+		(x1, y1) = random.choice(water_pts)
+		n = self.array[x1][y1]
+		n1_options = list(set(n.range()) - set(n.local()))
+		n1 = np.random.choice(n1_options, replace=False)
+		while Type.WATER in n1.type:
+			n1 = np.random.choice(n1_options, replace=False)
+		n2_options = list(set(n1.range()) - set(n1.local()))
+		n2 = np.random.choice(n2_options, replace=False)
+		points = get_line((n1.x, n1.y), (n2.x, n2.y))
+		while any(Type.WATER in self.array[x][y].type for (x, y) in points):
+			print("trying again")
+			n2 = np.random.choice(n2_options, replace=False)
+			points = get_line((n1.x, n1.y), (n2.x, n2.y))
+
 		(x1, y1) = points[0]
-		(x2, y2) = points[endpt-1]
+		(x2, y2) = points[len(points)-1]
 		self.set_type_road(points, Type.MAJOR_ROAD)
 		self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2]))
 		for (x, y) in points:
@@ -108,7 +118,34 @@ class Landscape:
 				if pt not in points:
 					self.set_type_building([self.array[pt.x][pt.y]])
 		self.init_lots(x1, y1, x2, y2)
-		return (x1, x2)
+
+	def get_water_body(self):
+		# make curvy water body
+		widerange = self.x # assuming x and y are same size
+		margin = int(0.4 * widerange)
+		pts1 = random.sample(range(widerange), 7)
+		pts2 = random.sample(range(margin, widerange-margin), 7)
+		pts1[0] = 0
+		pts1[len(pts1)-1] = widerange
+		pts1 = sorted(pts1)
+		pts = [pts1, pts2]
+		random.shuffle(pts)
+		f = splrep(pts1, pts2)
+		pts = [(x, splev(x, f)) for x in np.arange(0, self.x, 0.25)]
+		pts = [(x, y) for (x, y) in pts]
+
+		# prune not continuous
+		pruned_pts = []
+		for i in range(len(pts)):
+			if pts[i][0] < self.x and pts[i][0] >=0 and pts[i][1] >= 0 and pts[i][1] < self.y:
+				if i == 0 or (abs(pts[i-1][0] - pts[i][0]) <=1 and abs(pts[i-1][1] - pts[i][1]) <=1):
+					if i == len(pts)-1 or (abs(pts[i+1][0] - pts[i][0]) <=1 and abs(pts[i+1][1] - pts[i][1]) <=1):
+						pruned_pts.append((int(pts[i][0]), int(pts[i][1])))
+
+		if random.random() < 0.5:
+			pruned_pts = [(y, x) for (x, y) in pruned_pts]
+
+		return pruned_pts
 
 	def init_lots(self, x1, y1, x2, y2):
 		(mx, my) = (int(x1 + x2)//2, int(y1 + y2)//2)
