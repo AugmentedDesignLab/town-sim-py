@@ -151,7 +151,7 @@ class Landscape:
 			return True
 		return False
 
-	def step(self, phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay):
+	def step(self, phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
 		random.shuffle(self.nodes)
 		for node in self.nodes:
@@ -179,9 +179,9 @@ class Landscape:
 					if node.local_prosperity > maNum and (len(set(node.major_road_range()) & set(self.roads)) == 0):
 						# find closest road node, connect to it 
 						if node.local_prosperity > brNum:
-							self.set_new_road(i, j, Type.MAJOR_ROAD, True)
+							self.set_new_road(i, j, Type.MAJOR_ROAD, True, corNum)
 						else:
-							self.set_new_road(i, j, Type.MAJOR_ROAD)
+							self.set_new_road(i, j, Type.MAJOR_ROAD, correction=corNum)
 					if node.local_prosperity > buNum and (len(set(node.plot()) & set(self.roads)) != 0):
 						self.set_type_building(node.plot())
 
@@ -189,7 +189,7 @@ class Landscape:
 				# bypasses
 					if node.local_traffic > byNum and (len(set(node.major_road_range()) & set(self.roads)) == 0):
 						#print("match conditions for adding bypass")
-						self.set_new_bypass(i, j)
+						self.set_new_bypass(i, j, corNum)
 
 				# minor roads
 				elif phase == 3:
@@ -201,7 +201,7 @@ class Landscape:
 								break
 						if buildable:
 							# find closest road node, connect to it 
-							self.set_new_road(i, j, Type.MINOR_ROAD)
+							self.set_new_road(i, j, Type.MINOR_ROAD, correction=corNum)
 
 					# calculate reservations of greenery
 					if Type.FOREST in node.type or Type.GREEN in node.type:
@@ -215,9 +215,9 @@ class Landscape:
 										self.set_type_building(lot)
 								break
 
-	def set_new_bypass(self, x1, y1):
+	def set_new_bypass(self, x1, y1, correction):
 		node = self.array[x1][y1]
-		point = get_closest_point(node, self.lots, self.bypass_roads, Type.BYPASS, True)
+		point = get_closest_point(node, self.lots, self.bypass_roads, Type.BYPASS, True, correction=correction)
 		if point is not None:
 			(x2, y2) = point
 			node2 = self.array[x2][y2]
@@ -236,10 +236,10 @@ class Landscape:
 			points = [(x1, y1)]
 			self.set_type_bypass(points, node)
 	
-	def set_new_road(self, x1, y1, road_type, leave_lot = False):
+	def set_new_road(self, x1, y1, road_type, leave_lot=False, correction=5):
 		#print("try set road")
 		node = self.array[x1][y1]
-		point = get_closest_point(node, self.lots, self.roads, road_type, leave_lot)
+		point = get_closest_point(node, self.lots, self.roads, road_type, leave_lot, correction=correction)
 		if point is not None:
 			(x2, y2) = point
 			points = get_line((x1, y1), (x2, y2))

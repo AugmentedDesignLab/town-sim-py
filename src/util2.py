@@ -7,7 +7,7 @@ import math
 from lot import Lot
 from util import Type, get_line
 
-def get_closest_point(node, lots, road_segments, road_type, leave_lot):
+def get_closest_point(node, lots, road_segments, road_type, leave_lot, correction=5):
 	# check if road can leave lot
 	(x, y) = (node.x, node.y)
 	nodes = None
@@ -30,10 +30,10 @@ def get_closest_point(node, lots, road_segments, road_type, leave_lot):
 
 
 	if road_type is not Type.MINOR_ROAD and not leave_lot and node.lot is not None:
-		if abs(x - x2) < 5:
+		if abs(x - x2) < correction:
 			x = x2
 			node = node.landscape.array[x][y]
-		elif abs(y - y2) < 5:
+		elif abs(y - y2) < correction:
 			y = y2
 			node = node.landscape.array[x][y]
 
@@ -83,6 +83,9 @@ def get_point_to_close_gap_minor(x1, y1, landscape, points):
 
 def get_point_to_close_gap_major(node, x1, y1, landscape, points):
 	# extends a major road to the edge of a lot
+	if node.lot is None:
+		return None
+
 	(x_, y_) = points[1]
 	x = x1 - x_
 	y = y1 - y_

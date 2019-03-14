@@ -24,6 +24,7 @@ r4 = 10
 buNum = 400
 pDecay = 0.75
 tDecay = 0.25
+corNum = 5
 
 def run_simulation_inner_loop_noui(simulation, counter):
 	p = sum(sum(simulation.landscape.prosperity, []))
@@ -63,7 +64,7 @@ if __name__ == "__main__":
 	parser.add_argument("-r4", "--majorroadrange", type=int, help="Radial range for major road range. Default: 10.")
 	parser.add_argument("-dp", "--prosperityDecay", type=float, help="Rate of prosperity decay. Default: 0.75.")
 	parser.add_argument("-dt", "--trafficDecay", type=float, help="Rate of traffic-density decay. Default: 0.25.")
-
+	parser.add_argument("-co", "--correction", type=float, help="Correction to grid of new roads. Default: 5.")
 
 	args = parser.parse_args()
 	if args.output:
@@ -98,11 +99,13 @@ if __name__ == "__main__":
 		pDecay = args.prosperityDecay
 	if args.trafficDecay:
 		tDecay = args.trafficDecay
+	if args.correction:
+		corNum = args.correction
 
 	if args.noui is False:
 		sys.argv = sys.argv[0:1]
 		import kvui
-		kvui.run_kv(outputFile, gridSize, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay)
+		kvui.run_kv(outputFile, gridSize, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum)
 	else:
 		# do no ui things
 		print ("This might take a while.")
