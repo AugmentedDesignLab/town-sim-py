@@ -23,7 +23,7 @@ class Node:
 		self.plot_range = r1
 		self.local_range = r2
 		self.explore_range = r3
-		self.major_road_range = r4
+		self.maroad_range = r4
 
 	def add_adjacent(self, node):
 		self.adjacent.add(node)
@@ -87,12 +87,12 @@ class Node:
 				self.__local = list(local)
 
 		local = set([self])
-		for i in range(1, self.major_road_range + 1):
+		for i in range(1, self.maroad_range + 1):
 			local.update(set([e for n in [s for s in local] for e in n.neighbors]))
 
 			if i == self.explore_range:
 				self.__range = list(local)
-			if i == self.major_road_range:
+			if i == self.maroad_range:
 				self.__major_road_range = list(local)
 
 	def get_lot(self):

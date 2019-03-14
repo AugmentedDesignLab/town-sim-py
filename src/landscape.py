@@ -119,13 +119,13 @@ class Landscape:
 
 		self.lots.add(Lot(self, [(mx1, my1), (mx1, my2), (mx2, my2), (mx2, my1)]))
 
-	def step(self, phase, maNum, miNum, byNum, brNum, buNum):
+	def step(self, phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay):
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
 		random.shuffle(self.nodes)
 		for node in self.nodes:
 			(i, j) = (node.x, node.y)
-			self.prosperity[i][j] *= 0.75
-			self.traffic[i][j] *= 0.25
+			self.prosperity[i][j] *= pDecay
+			self.traffic[i][j] *= tDecay
 
 			# calculate roads
 			if Type.GREEN in node.type or Type.FOREST in node.type \

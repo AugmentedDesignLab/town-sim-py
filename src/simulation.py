@@ -11,13 +11,13 @@ from lot import Lot
 import gc
 
 class Simulation:
-	def __init__(self, size=200, r1, r2, r3, r4):
+	def __init__(self, size=200, r1=3, r2=5, r3=10, r4=10):
 		self.landscape = Landscape(size, size, self, r1, r2, r3, r4)
 		self.agents = []
 		for i in range(100): #200
 			self.add_agent(Agent(self.landscape, self))
 
-	def step(self, phase, maNum=20, miNum=400, byNum=2000, brNum=5000, buNum=400):
+	def step(self, phase, maNum=20, miNum=400, byNum=2000, brNum=5000, buNum=400, pDecay=0.75, tDecay=0.25):
 		killlist = []
 		for agent in self.agents:
 			agent.step(self.landscape)
@@ -26,7 +26,7 @@ class Simulation:
 		for agent in killlist:
 			self.kill(agent)
 		gc.collect()
-		self.landscape.step(phase, maNum, miNum, byNum, brNum, buNum)
+		self.landscape.step(phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay)
 
 	def add_agent(self, agent):
 		self.agents.append(agent)
