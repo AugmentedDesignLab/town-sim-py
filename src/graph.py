@@ -61,10 +61,8 @@ if __name__ == "__main__":
 	parser.add_argument("-r2", "--local", type=int, help="Radial range for local range. Default: 5.")
 	parser.add_argument("-r3", "--explore", type=int, help="Radial range for explore range. Default: 10.")
 	parser.add_argument("-r4", "--majorroadrange", type=int, help="Radial range for major road range. Default: 10.")
-
-
-	parser.add_argument("-dp", "--prosperityDecay", type=int, help="Rate of prosperity decay. Default: 0.75.")
-	parser.add_argument("-dt", "--trafficDecay", type=int, help="Rate of traffic-density decay. Default: 0.25.")
+	parser.add_argument("-dp", "--prosperityDecay", type=float, help="Rate of prosperity decay. Default: 0.75.")
+	parser.add_argument("-dt", "--trafficDecay", type=float, help="Rate of traffic-density decay. Default: 0.25.")
 
 
 	args = parser.parse_args()
