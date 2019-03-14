@@ -1,6 +1,6 @@
 # BSD 3-Clause License
 #
-# Copyright (c) 2018, Augmented Design Lab
+# Copyright (c) 2019, Augmented Design Lab
 # All rights reserved.
 import random
 from util import Type
@@ -26,7 +26,7 @@ class Node:
 		self.maroad_range = r4
 		self.__water_neighbors = []
 		self.__resource_neighbors = []
-		self.update_flag = False
+		self.updateFlag = False
 
 	def get_water_neighbors(self):
 		self.__water_neighbors = [l for l in self.range() if Type.WATER in l.type]
@@ -65,11 +65,11 @@ class Node:
 
 	def add_prosperity(self, amt):
 		self.landscape.prosperity[self.x, self.y] += amt
-		self.update_flag = True
+		self.updateFlag = True
 
 	def add_traffic(self, amt):
 		self.landscape.traffic[self.x, self.y] += amt
-		self.update_flag = True
+		self.updateFlag = True
 
 	def prosperity(self):
 		return self.landscape.prosperity[self.x, self.y]

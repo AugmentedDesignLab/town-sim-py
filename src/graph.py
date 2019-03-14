@@ -1,6 +1,6 @@
 # BSD 3-Clause License
 #
-# Copyright (c) 2018, Augmented Design Lab
+# Copyright (c) 2019, Augmented Design Lab
 # All rights reserved.
 import argparse
 from multiprocessing import Event, Queue, Process
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 	parser.add_argument("-ma", "--major", type=int, help="Minimum local prosperity for a new major road. Default: 10.")
 	parser.add_argument("-mi", "--minor", type=int, help="Minimum local prosperity for a new minor road. Default: 400.")
 	parser.add_argument("-by", "--bypass", type=int, help="Minimum local traffic for a new bypass segment. Default: 2000.")
-	parser.add_argument("-br", "--bridges", type=int, help="Minimum local prosperity for a new bridge. Default: 5000.")
+	parser.add_argument("-br", "--bridges", type=int, help="Minimum local prosperity to cross water or exit lot. Default: 5000.")
 	parser.add_argument("-bu", "--buildings", type=int, help="Minimum local prosperity for a new building node. Default: 400.")
 	parser.add_argument("-r1", "--plot", type=int, help="Radial range for plot size. Default: 3.")
 	parser.add_argument("-r2", "--local", type=int, help="Radial range for local range. Default: 5.")

@@ -1,6 +1,6 @@
 # BSD 3-Clause License
 #
-# Copyright (c) 2018, Augmented Design Lab
+# Copyright (c) 2019, Augmented Design Lab
 # All rights reserved.
 from collections import Counter
 import cv2
@@ -142,12 +142,14 @@ class Landscape:
 
 	def init_lots(self, x1, y1, x2, y2):
 		(mx, my) = (int(x1 + x2)//2, int(y1 + y2)//2)
-		mx1 = max(mx-25, 0)
-		mx2 = min(mx+25, self.x-1)
-		my1 = max(my-25, 0)
-		my2 = min(my+25, self.y-1)
+		self.add_lot([(mx-25, my-25), (mx+25, my+25)])
 
-		self.lots.add(Lot(self, [(mx1, my1), (mx1, my2), (mx2, my2), (mx2, my1)]))
+	def add_lot(self, points):
+		lot = Lot(self, points)
+		if lot is not None:
+			self.lots.add(lot)
+			return True
+		return False
 
 	def step(self, phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay):
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
@@ -174,12 +176,12 @@ class Landscape:
 
 				# major roads
 				if phase == 1:
-					if node.local_prosperity > brNum and (len(set(node.major_road_range()) & set(self.roads)) == 0): #change to major road range for better effect
+					if node.local_prosperity > maNum and (len(set(node.major_road_range()) & set(self.roads)) == 0):
 						# find closest road node, connect to it 
-						self.set_new_road(i, j, Type.MAJOR_ROAD, True)
-					elif node.local_prosperity > maNum and (len(set(node.major_road_range()) & set(self.roads)) == 0):
-						# find closest road node, connect to it 
-						self.set_new_road(i, j, Type.MAJOR_ROAD)
+						if node.local_prosperity > brNum:
+							self.set_new_road(i, j, Type.MAJOR_ROAD, True)
+						else:
+							self.set_new_road(i, j, Type.MAJOR_ROAD)
 					if node.local_prosperity > buNum and (len(set(node.plot()) & set(self.roads)) != 0):
 						self.set_type_building(node.plot())
 
@@ -381,8 +383,8 @@ class Landscape:
 					img[i, j + self.y, 1] = self.array[i][j].traffic() * 5
 
 		for lot in self.lots:
-			for (x, y) in lot.border:
-				img[x, y + self.y] = PLOT_color
+			for n in lot.border:
+				img[n.x, n.y + self.y] = PLOT_color
 
 		img = cv2.resize(img, (2000, 1000))
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)

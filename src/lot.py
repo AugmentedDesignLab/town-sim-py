@@ -1,55 +1,37 @@
 # BSD 3-Clause License
 #
-# Copyright (c) 2018, Augmented Design Lab
+# Copyright (c) 2019, Augmented Design Lab
 # All rights reserved.
 from util import Type, get_line, get_pt_avg
-
-def get_border_pts(points):
-	border = set()
-	l = len(points)
-	for i in range(l):
-		border.update(set(get_line(points[i], points[(i + 1) % l])))
-	return border
 
 class Lot:
 	def __init__(self, landscape, points):
 		self.landscape = landscape
-		self.neighbors = set() # neighbor lots, not currently used
-		self.points = points
-		self.get_lot()
+		# self.neighbors = set() # neighbor lots, not currently used
+		self.get_lot(points)
 
+	def get_lot(self, points):
+		[pt1, pt2] = points
 
-	def get_lot(self):
-		self.border = get_border_pts(self.points)
-
-		(ax, ay) = get_pt_avg(self.points)
+		(ax, ay) = get_pt_avg(points)
 		self.center = (cx, cy) = (int(ax), int(ay))
 		center_node = self.landscape.array[cx][cy]
 
 		lot = set([center_node])
+		self.border = set()
 		while True:
-			neighbors = set([e for n in [s for s in lot] for e in n.adjacent if \
-				e not in lot and (e.x, e.y) not in self.border])
+			neighbors = set([e for n in lot for e in n.adjacent if \
+				e not in lot and e.lot is None and e.x != pt1[0] and e.x != pt2[0] and e.y != pt1[1] and e.y != pt2[1] \
+				and Type.WATER not in e.type])
 			if len(neighbors) > 0:
 				lot.update(neighbors)
+				self.border = neighbors
 			else:
 				break
-
-		'''
-		for (x, y) in self.border:
-			try:
-				lot.add(self.landscape.array[x][y])
-			except:
-				print(x)
-				print(y)
-				exit(1)
-		'''
-		lot.update(set([self.landscape.array[x][y] for (x, y) in self.border]))
 		
 		for node in lot:
 			node.lot = self
 		self.nodes = lot
-		#print("new lot created with {} nodes!".format(len(self.nodes)))
 
 	def get_nodes(self):
 		return self.nodes

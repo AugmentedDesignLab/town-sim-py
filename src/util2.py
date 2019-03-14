@@ -1,6 +1,6 @@
 # BSD 3-Clause License
 #
-# Copyright (c) 2018, Augmented Design Lab
+# Copyright (c) 2019, Augmented Design Lab
 # All rights reserved.
 import math
 
@@ -32,9 +32,10 @@ def get_closest_point(node, lots, road_segments, road_type, leave_lot):
 	if road_type is not Type.MINOR_ROAD and not leave_lot and node.lot is not None:
 		if abs(x - x2) < 5:
 			x = x2
+			node = node.landscape.array[x][y]
 		elif abs(y - y2) < 5:
 			y = y2
-	node = node.landscape.array[x][y]
+			node = node.landscape.array[x][y]
 
 	if node.lot is None:
 		if node2.lot is not None:
@@ -50,20 +51,14 @@ def get_closest_point(node, lots, road_segments, road_type, leave_lot):
 			if y < 0:
 				y = 0
 
-			#if abs(x2 - x) > 5 and abs(y2 - y) > 5:
-				# should add a check for out of range
-				# should make new lot only for parts where there was no old lot?
 		else:
 			(x2, y2) = (node2.x, node2.y)
-			#if abs(x2 - x) > 5 and abs(y2 - y) > 5:
 			
 		if abs(x2 - x) > 10 and abs(y2 - y) > 10 and road_type is Type.MAJOR_ROAD:
-			node.landscape.lots.add(Lot(node.landscape, [(x2, y2), (x2, y), (x, y), (x, y2)]))
+			if not node.landscape.add_lot([(x2, y2), (x, y)]):
+				return None
 		else:
 			return None
-	else:
-		#print("lot already exists with {} nodes".format(len(node.lot.get_nodes())))
-		pass
 
 	return node2.x, node2.y
 
