@@ -71,12 +71,6 @@ class Landscape:
 	def remove_agent(self, agent):
 		self.array[agent.x][agent.y].remove_agent(agent)
 
-	def add_traffic(self, x, y, amt):
-		self.traffic[x, y] += amt
-
-	def traffic(self, x, y):
-		return self.traffic[x, y]
-
 	def init_geography(self):
 		pts = self.get_water_body()
 		while len(pts) < 10:
@@ -164,6 +158,11 @@ class Landscape:
 				continue
 			self.prosperity[i, j] *= pDecay
 			self.traffic[i, j] *= tDecay
+			if not node.updateFlag:
+				continue
+			else:
+				node.updateFlag = False
+
 			if len(node.agents) > 0:
 				node.get_local()
 

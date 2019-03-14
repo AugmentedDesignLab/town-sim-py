@@ -28,8 +28,9 @@ class Agent:
 	def move(self, node):
 		(ax, ay) = get_pt_avg([(self.x, self.y), (node.x, node.y)])
 		(mid_x, mid_y) = (int(ax), int(ay))
-		if len(set(self.landscape.array[mid_x][mid_y].local()) & set(self.landscape.bypass_roads)) == 0:
-			self.landscape.add_traffic(mid_x, mid_y, 10)
+		midnode = self.landscape.array[mid_x][mid_y]
+		if len(set(midnode.local()) & set(self.landscape.bypass_roads)) == 0:
+			midnode.add_traffic(10)
 		self.x = node.x
 		self.y = node.y
 		self.node.remove_agent(self)

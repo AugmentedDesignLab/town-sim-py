@@ -26,6 +26,7 @@ class Node:
 		self.maroad_range = r4
 		self.__water_neighbors = []
 		self.__resource_neighbors = []
+		self.update_flag = False
 
 	def get_water_neighbors(self):
 		self.__water_neighbors = [l for l in self.range() if Type.WATER in l.type]
@@ -64,6 +65,11 @@ class Node:
 
 	def add_prosperity(self, amt):
 		self.landscape.prosperity[self.x, self.y] += amt
+		self.update_flag = True
+
+	def add_traffic(self, amt):
+		self.landscape.traffic[self.x, self.y] += amt
+		self.update_flag = True
 
 	def prosperity(self):
 		return self.landscape.prosperity[self.x, self.y]
