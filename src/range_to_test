@@ -1,9 +1,9 @@
 -s 200*
 
--p2 40000, 80000, 100000, 200000*, 400000, 800000
--p3 20000, 40000, 80000*, 100000, 200000, 400000
--ma 5, 10, 15, 20*, 30, 50
--mi 100, 200, 400*, 800, 1000, 2000
+-p2 40000, 80000, 100000, 200000*, 400000, 800000 %
+-p3 20000, 40000, 80000*, 100000, 200000, 400000 %
+-ma 1, 5, 10*, 15, 20, 50 %??
+-mi 100, 200, 400*, 800, 1000, 2000 %??
 -by 400, 800, 1000, 2000*, 4000, 8000
 -br 5000*
 -bu 400*
@@ -11,9 +11,13 @@
 -r2 5*
 -r3 10*
 -r4 10*
+-dp 0.75*
+-dt 0.25*
+-co 5*
 
 *is default in code
 @use as default in test
+%does not have much effect
 
 1. lower mi:ma results in more windy mi roads
 
@@ -30,4 +34,3 @@ garden conversion (even though it doesn't do anything)
 
 1. write save state code
 2. confirm that bypasses work 
-3. fix bridges -- they cross water too easily
