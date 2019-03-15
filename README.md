@@ -4,6 +4,9 @@ Town growth simulator that creates road networks.
 
 Outputs a text file which contains lists of roads, and if the road is curved, a list of its turning points. 
 
+## Note
+Use `-h` for up-to-date commandline options. Do not use `--noui`; it is out of sync.
+
 ## Commandline Options
 ```
 usage: graph.py [-h] [--noui] [-o OUTPUT] [-s SIZE] [-c CYCLES] [-p2 PHASE2]

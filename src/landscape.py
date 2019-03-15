@@ -153,138 +153,127 @@ class Landscape:
 
 	def step(self, phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
+		self.prosperity *= pDecay
+		self.traffic *= tDecay
 		random.shuffle(self.nodes)
 		for node in self.nodes:
 			(i, j) = (node.x, node.y)
-			if self.prosperity[i, j] == 0 and self.traffic[i, j] == 0:
-				continue
-			self.prosperity[i, j] *= pDecay
-			self.traffic[i, j] *= tDecay
+
 			if not node.updateFlag:
 				continue
 			else:
 				node.updateFlag = False
 
-			if len(node.agents) > 0:
-				node.get_local()
+			node.get_local()
 
 			# calculate roads
-			if Type.GREEN in node.type or Type.FOREST in node.type or Type.BUILDING in node.type:
+			if not (Type.GREEN in node.type or Type.FOREST in node.type or Type.BUILDING in node.type):
+				return
 
-				node.local_prosperity = sum([n.prosperity() for n in node.local()])
-				node.local_traffic = sum([n.traffic() for n in node.range()])
+			node.local_prosperity = sum([n.prosperity() for n in node.local()])
+			node.local_traffic = sum([n.traffic() for n in node.range()])
 
-				# major roads
-				if phase == 1:
-					if node.local_prosperity > maNum and (len(set(node.major_road_range()) & set(self.roads)) == 0):
-						# find closest road node, connect to it 
-						if node.local_prosperity > brNum:
-							self.set_new_road(i, j, Type.MAJOR_ROAD, True, corNum)
-						else:
-							self.set_new_road(i, j, Type.MAJOR_ROAD, correction=corNum)
-					if node.local_prosperity > buNum and (len(set(node.plot()) & set(self.roads)) != 0):
-						self.set_type_building(node.plot())
+			road_found_far = len(set(node.range()) & set(self.roads))
+			road_found_near = len(set(node.plot()) & set(self.roads))
 
-				elif phase == 2:
-				# bypasses
-					if node.local_traffic > byNum and (len(set(node.major_road_range()) & set(self.roads)) == 0):
-						#print("match conditions for adding bypass")
-						self.set_new_bypass(i, j, corNum)
+			# major roads
+			if node.local_prosperity > maNum and not road_found_far:
+				# find closest road node, connect to it 
+				if node.local_prosperity > brNum:
+					self.set_new_road(i, j, Type.MAJOR_ROAD, True, corNum)
+				else:
+					self.set_new_road(i, j, Type.MAJOR_ROAD, correction=corNum)
+			if node.local_prosperity > buNum and road_found_near:
+				self.set_type_building(node.plot())
 
-				# minor roads
-				elif phase == 3:
-					if node.local_prosperity > miNum and (len(set(node.local()) & set(self.roads)) == 0): 
-						buildable = True
-						for node in node.plot():
-							if Type.BUILDING not in node.type:
-								buildable = False
-								break
-						if buildable:
-							# find closest road node, connect to it 
-							self.set_new_road(i, j, Type.MINOR_ROAD, correction=corNum)
+			if phase >= 2:
+			# bypasses
+				if node.local_traffic > byNum and not road_found_far:
+					self.set_new_bypass(i, j, corNum)
 
-					# calculate reservations of greenery
-					if Type.FOREST in node.type or Type.GREEN in node.type:
-						for n in node.neighbors:
-							if n in self.built:
-								lot = node.get_lot()
-								if lot is not None:
-									if random.random() < 0.1:
-										self.set_type_city_garden(lot)
-									else:
-										self.set_type_building(lot)
-								break
+			# minor roads
+			if phase >= 3:
+				# find closest road node, connect to it 
+				if node.local_prosperity > miNum and not road_found_near: 
+					# if not len([n for n in node.plot() if Type.BUILDING not in n.type]):
+					self.set_new_road(i, j, Type.MINOR_ROAD, correction=corNum)
+
+				# calculate reservations of greenery
+				elif Type.FOREST in node.type or Type.GREEN in node.type:
+					if len(node.neighbors & self.built):
+						lot = node.get_lot()
+						if lot is not None:
+							if random.random() < 0.5:
+								self.set_type_city_garden(lot)
+							else:
+								self.set_type_building(lot)
 
 	def set_new_bypass(self, x1, y1, correction):
+		if len(self.bypass_roads) == 0: # should only be true for the first bypass node
+			self.bypass_nodes.append(node)
+			return 
 		node = self.array[x1][y1]
 		point = get_closest_point(node, self.lots, self.bypass_roads, Type.BYPASS, True, correction=correction)
-		if point is not None:
-			(x2, y2) = point
-			node2 = self.array[x2][y2]
-			for n in node2.local():
-				if n in self.bypass_nodes:
-					#node2 = n
-					break
+		if point is None:
+			return 
+		(x2, y2) = point
+		node2 = self.array[x2][y2]
+		if len(set(node2.local()) & set(self.bypass_nodes)) > 0:
+			return
 
-			points = get_line((x1, y1), (node2.x, node2.y))
-			self.roadnodes.append(node)
-			self.roadnodes.append(node2)
-			self.roadsegments.add(RoadSegment(node, node2))
+		points = get_line((x1, y1), (node2.x, node2.y))
+		self.roadnodes.append(node)
+		self.roadnodes.append(node2)
+		self.roadsegments.add(RoadSegment(node, node2))
 
-			self.set_type_bypass(points, node, node2)
-		elif len(self.bypass_roads) == 0: # should only be true for the first bypass node (?)
-			points = [(x1, y1)]
-			self.set_type_bypass(points, node)
+		self.set_type_bypass(points, node, node2)
 	
 	def set_new_road(self, x1, y1, road_type, leave_lot=False, correction=5):
-		#print("try set road")
 		node = self.array[x1][y1]
 		point = get_closest_point(node, self.lots, self.roads, road_type, leave_lot, correction=correction)
-		if point is not None:
-			(x2, y2) = point
-			points = get_line((x1, y1), (x2, y2))
+		if point is None:
+			return 
+		(x2, y2) = point
+		points = get_line((x1, y1), (x2, y2))
+		if len(points) < 2:
+			return
+		self.roadnodes.append(node)
+		self.roadnodes.append(self.array[x2][y2])
+		self.roadsegments.add(RoadSegment(node, self.array[x2][y2]))
+
+		self.set_type_road(points, road_type)
+
+		point2 = None
+		if road_type == Type.MINOR_ROAD:
+			point2 = get_point_to_close_gap_minor(x1, y1, self, points)
+		elif road_type == Type.MAJOR_ROAD:
+			point2 = get_point_to_close_gap_major(node, x1, y1, self, points)
+
+		if point2 is not None:
+			(x2, y2) = point2
 			self.roadnodes.append(node)
 			self.roadnodes.append(self.array[x2][y2])
 			self.roadsegments.add(RoadSegment(node, self.array[x2][y2]))
-			#print(points)
+
+			points = get_line((x1, y1), point2)
 			self.set_type_road(points, road_type)
-			if road_type == Type.MINOR_ROAD:
-				point2 = get_point_to_close_gap_minor(x1, y1, self, points)
-				if point2 is not None:
-					(x2, y2) = point2
-					self.roadnodes.append(node)
-					self.roadnodes.append(self.array[x2][y2])
-					self.roadsegments.add(RoadSegment(node, self.array[x2][y2]))
 
-					points = get_line((x1, y1), point2)
-					self.set_type_road(points, road_type)
-			elif road_type == Type.MAJOR_ROAD:
-				point2 = get_point_to_close_gap_major(node, x1, y1, self, points)
-				if point2 is not None:
-					(x2, y2) = point2
-					self.roadnodes.append(node)
-					self.roadnodes.append(self.array[x2][y2])
-					self.roadsegments.add(RoadSegment(node, self.array[x2][y2]))
-
-					points = get_line((x1, y1), point2)
-					self.set_type_road(points, road_type)
-
-	def set_type_bypass(self, points, node1, node2 = None):
+	def set_type_bypass(self, points, node1, node2):
 		nodes = []
 		for (x, y) in points:
 			node = self.array[x][y]
 			nodes.append(node)
 
-		if len(set(nodes) & set(self.bypass_roads)) > 3:
+		if len(set(nodes) & set(self.bypass_roads)) > 2:
 			return
 
 		for node in nodes:
+			node.clear_type()
+
 			if Type.WATER in node.type:
-				node.clear_type()
 				node.add_type(Type.BRIDGE)
 				node.add_type(Type.BYPASS)
 			else:
-				node.clear_type()
 				node.add_type(Type.MAJOR_ROAD)
 				node.add_type(Type.BYPASS)
 			for road in self.roads:
@@ -293,22 +282,17 @@ class Landscape:
 			self.roads.append(node)
 			self.bypass_roads.append(node)
 
-		if node2 is not None:
-			for node in (node1, node2):
-				if node in self.bypass_nodes:
-					self.bypass_nodes.remove(node)
-					self.traffic[node.x, node.y] = 0
-					for n in node.range():
-						self.traffic[n.x, n.y] = 0
-		
-		#print("bypass added")
+		for node in (node1, node2):
+			if node in self.bypass_nodes:
+				self.bypass_nodes.remove(node)
+			self.traffic[node.x, node.y] = 0
+			for n in node.range():
+				self.traffic[n.x, n.y] = 0
 
 	def set_type_road(self, points, road_type):
 		for (x, y) in points:
 			node = self.array[x][y]
 
-			#if node.lot is None:
-			#	print ("setting road in non lot")
 			if Type.WATER in node.type:
 				node.clear_type()
 				node.add_type(Type.BRIDGE)
@@ -365,8 +349,6 @@ class Landscape:
 					img[i, j] = CITY_GARDEN_color
 				elif Type.BRIDGE in node_type:
 					img[i, j] = BRIDGE_color
-				#elif len(self.array[i][j].agents) > 0:
-				#	img[i, j] = AGENT_color
 				elif Type.FOREST in node_type:
 					img[i, j] = FOREST_color 
 				elif Type.GREEN in node_type:
@@ -375,6 +357,9 @@ class Landscape:
 					img[i, j] = WATER_color
 				elif Type.BROWN in node_type:
 					img[i, j] = BROWN_color 
+
+				if len(self.array[i][j].agents) > 0:
+					img[i, j + self.y, 2] = 255
 
 				if self.array[i][j].prosperity() > 0:
 					img[i, j + self.y, 0] = self.array[i][j].prosperity() * 5

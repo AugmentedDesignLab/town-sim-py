@@ -45,8 +45,11 @@ class Agent:
 		if len(self.node.agents) > 1:
 			self.trade(random.choice(self.node.agents))
 		self.rest(landscape)
+
+		local_prosperity = self.node.local_prosperity
+		local_pop = sum([len(n.agents) for n in self.node.local()])
 		
-		if self.water > 10 and self.resource > 10 and random.random() < 0.5:
+		if local_prosperity / 20 - len(self.node.agents) > 20 and local_pop < 50 and self.water > 10 and self.resource > 10 and random.random() < 0.5:
 			agent = Agent(landscape, self.simulation, self.x, self.y)
 			self.water = agent.water = self.water / 2
 			self.resource = agent.resource = self.resource / 2

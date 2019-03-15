@@ -128,23 +128,29 @@ class UI(App):
 
 def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
 	p = np.sum(simulation.landscape.prosperity)
+
+	if output_request.is_set():
+		simulation.output(outputFile)
+		output.set()
+		output_request.clear()
+	if stop_request.is_set():
+		stop_request.clear()
+		return 1
+	if pause_request.is_set():
+		pass
+
 	phase = 1
-	for i in range(15):
-		if output_request.is_set():
-			simulation.output(outputFile)
-			output.set()
-			output_request.clear()
-		if stop_request.is_set():
-			stop_request.clear()
-			return 1
-		if pause_request.is_set():
-			pass
-		if i >= 5 and i < 10 and p > phase2threshold:
-			phase = 2
-		elif i >= 10 and p > phase3threshold:
-			phase = 3
-		queue.put(simulation.view('{}-{}-{}'.format(counter, phase, i)))
+	simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+
+	if p > phase2threshold:
+		phase = 2
 		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+
+	if p > phase3threshold:
+		phase = 3
+		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+
+	queue.put(simulation.view('{}-{}'.format(counter, phase)))
 
 def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum):
 	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
@@ -165,17 +171,18 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 def read_simulation(dt):
 	global queue, kvbox
 
-	if queue.empty() != True:
-		img = queue.get()
-		imgIO = BytesIO()
-		qr = Image.fromarray(img)
-		qr.save(imgIO, format='png')
-		imgIO.seek(0)
-		imgData = BytesIO(imgIO.read())
-		with kvbox.canvas:
-			kvbox.canvas.clear()
-			image = kiImage(source='', pos=kvbox.pos, size=kvbox.size)
-			image.texture = CoreImage(imgData, ext='png').texture
+	if queue.empty():
+		return
+	img = queue.get()
+	imgIO = BytesIO()
+	qr = Image.fromarray(img)
+	qr.save(imgIO, format='png')
+	imgIO.seek(0)
+	imgData = BytesIO(imgIO.read())
+	with kvbox.canvas:
+		kvbox.canvas.clear()
+		image = kiImage(source='', pos=kvbox.pos, size=kvbox.size)
+		image.texture = CoreImage(imgData, ext='png').texture
 
 def run_kv(o, g, phase2, phase3, ma, mi, by, br, r1, r2, r3, r4, buNum, pDecay, tDecay, cor):
 	global ui
