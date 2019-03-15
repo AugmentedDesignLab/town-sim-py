@@ -98,23 +98,9 @@ class Node:
 		return self.__major_road_range
 
 	def get_local(self):
-		# one free movement on MINOR_ROAD
-		# two free movement on MAJOR_ROAD
 		local = set([self])
 		for i in range(1, self.local_range + 1):
-			neighbors = set([e for n in local for e in n.neighbors if Type.WATER not in e.type])
-			extra = set()
-			for n in neighbors:
-				if Type.MINOR_ROAD in n.type:
-					extra.update([e for e in n.neighbors if Type.WATER not in e.type])
-				elif Type.MAJOR_ROAD in n.type:
-					n_list = [e for e in n.neighbors if Type.WATER not in e.type]
-					for m in n_list:
-						if Type.MAJOR_ROAD in m.type:
-							extra.update([e for e in m.neighbors if Type.WATER not in e.type])
-					extra.update(n_list)
-
-			local.update(neighbors)
+			local.update(set([e for n in local for e in n.neighbors if Type.WATER not in e.type]))
 			if i == self.plot_range:
 				self.__plot = list(local)
 			if i == self.local_range:
@@ -122,19 +108,8 @@ class Node:
 
 		local = set([self])
 		for i in range(1, self.maroad_range + 1):
-			neighbors = set([e for n in local for e in n.neighbors])
-			extra = set()
-			for n in neighbors:
-				if Type.MINOR_ROAD in n.type:
-					extra.update([e for e in n.neighbors])
-				elif Type.MAJOR_ROAD in n.type:
-					n_list = [e for e in n.neighbors]
-					for m in n_list:
-						if Type.MAJOR_ROAD in m.type:
-							extra.update([e for e in m.neighbors])
-					extra.update(n_list)
+			local.update(set([e for n in local for e in n.neighbors]))
 
-			local.update(neighbors)
 			if i == self.explore_range:
 				self.__range = list(local)
 			if i == self.maroad_range:
