@@ -287,6 +287,9 @@ class Landscape:
 				node.clear_type()
 				node.add_type(Type.MAJOR_ROAD)
 				node.add_type(Type.BYPASS)
+			# for road in self.roads:
+			# 	node.add_neighbor(road)
+			# 	road.add_neighbor(node)
 			self.roads.append(node)
 			self.bypass_roads.append(node)
 
@@ -312,6 +315,9 @@ class Landscape:
 			else:
 				node.clear_type()
 				node.add_type(road_type)
+			# for road in self.roads:
+			# 	node.add_neighbor(road)
+			# 	road.add_neighbor(node)
 			self.roads.append(node)
 
 	def set_type_building(self, nodes):
