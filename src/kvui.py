@@ -140,15 +140,16 @@ def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2th
 		pass
 
 	phase = 1
-	simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+	for i in range(3):
+		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
 	if p > phase2threshold:
 		phase = 2
-		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+	simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
 	if p > phase3threshold:
 		phase = 3
-		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+	simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
 	queue.put(simulation.view('{}-{}'.format(counter, phase)))
 
@@ -162,11 +163,11 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 			output_request.clear()
 		if pause_request.is_set():
 			pass
-		counter += 1
 		if run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
 			stop_request.clear()
 			print("exiting subprocess")
 			exit(0)
+		counter += 1
 
 def read_simulation(dt):
 	global queue, kvbox

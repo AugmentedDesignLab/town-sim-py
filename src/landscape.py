@@ -24,8 +24,9 @@ class Landscape:
 		self.simulation = simulation
 		self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
 		self.nodes = [node for row in self.array for node in row]
-		self.prosperity = np.zeros((x, y)) #[[0 for j in range(y)] for i in range(x)]
-		self.traffic = np.zeros((x, y)) #[[0 for j in range(y)] for i in range(x)]
+		self.prosperity = np.zeros((x, y)) 
+		self.traffic = np.zeros((x, y)) 
+		self.updateFlags = np.zeros((x, y))
 
 		self.built = set()
 		self.roads = []
@@ -155,16 +156,13 @@ class Landscape:
 		#nodes = random.sample(self.nodes, int(len(self.nodes)/4))
 		self.prosperity *= pDecay
 		self.traffic *= tDecay
-		random.shuffle(self.nodes)
-		for node in self.nodes:
-			(i, j) = (node.x, node.y)
 
-			if not node.updateFlag:
-				continue
-			else:
-				node.updateFlag = False
-
-			node.get_local()
+		xInd, yInd = np.where(self.updateFlags > 0)
+		indices = list(zip(xInd, yInd))
+		random.shuffle(indices)
+		for (i, j) in indices:
+			self.updateFlags[i][j] = 0
+			node = self.array[i][j]
 
 			# calculate roads
 			if not (Type.GREEN in node.type or Type.FOREST in node.type or Type.BUILDING in node.type):
@@ -180,7 +178,7 @@ class Landscape:
 			if node.local_prosperity > maNum and not road_found_far:
 				# find closest road node, connect to it 
 				if node.local_prosperity > brNum:
-					self.set_new_road(i, j, Type.MAJOR_ROAD, True, corNum)
+					self.set_new_road(i, j, Type.MAJOR_ROAD, leave_lot=True, correction=corNum)
 				else:
 					self.set_new_road(i, j, Type.MAJOR_ROAD, correction=corNum)
 			if node.local_prosperity > buNum and road_found_near:
@@ -209,10 +207,10 @@ class Landscape:
 								self.set_type_building(lot)
 
 	def set_new_bypass(self, x1, y1, correction):
+		node = self.array[x1][y1]
 		if len(self.bypass_roads) == 0: # should only be true for the first bypass node
 			self.bypass_nodes.append(node)
 			return 
-		node = self.array[x1][y1]
 		point = get_closest_point(node, self.lots, self.bypass_roads, Type.BYPASS, True, correction=correction)
 		if point is None:
 			return 
@@ -333,7 +331,7 @@ class Landscape:
 		AGENT_color = (255, 0, 0)
 		PLOT_color = (255, 0, 255)
 
-		img = np.full((self.x, self.y * 2, 3), 0, np.uint8)
+		img = np.full((self.x * 2, self.y, 3), 0, np.uint8)
 		for i in range(self.x):
 			for j in range(self.y):
 				node_type = self.array[i][j].type
@@ -358,20 +356,20 @@ class Landscape:
 				elif Type.BROWN in node_type:
 					img[i, j] = BROWN_color 
 
-				if len(self.array[i][j].agents) > 0:
-					img[i, j + self.y, 2] = 255
+				# if len(self.array[i][j].agents) > 0:
+				# 	img[i + self.x, j, 2] = 255
 
 				if self.array[i][j].prosperity() > 0:
-					img[i, j + self.y, 0] = self.array[i][j].prosperity() * 5
+					img[i + self.x, j, 0] = self.array[i][j].prosperity() * 5
 
 				if self.array[i][j].traffic() > 0:
-					img[i, j + self.y, 1] = self.array[i][j].traffic() * 5
+					img[i + self.x, j, 1] = self.array[i][j].traffic() * 5
 
 		for lot in self.lots:
 			for n in lot.border:
-				img[n.x, n.y + self.y] = PLOT_color
+				img[n.x + self.x, n.y] = PLOT_color
 
-		img = cv2.resize(img, (2000, 1000))
+		img = cv2.resize(img, (1000, 2000))
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
 		return img

@@ -18,6 +18,12 @@ class Type(Enum):
 	HIGHWAY = 10
 	BYPASS = 11
 
+class Activity():
+	WORK = 10
+	WORK_BUILT = 1
+	REST = 10
+	MOVE = 10 # for traffic
+
 def get_line(start, end):
 	# http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm#Python
     """Bresenham's Line Algorithm

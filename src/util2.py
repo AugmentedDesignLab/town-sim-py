@@ -10,53 +10,60 @@ from util import Type, get_line
 def get_closest_point(node, lots, road_segments, road_type, leave_lot, correction=5):
 	# check if road can leave lot
 	(x, y) = (node.x, node.y)
-	nodes = None
+	nodes = road_segments
 	
 	if not leave_lot:
-		if node.lot is not None:
-			nodes = [n for n in road_segments if n in node.lot.get_nodes()]
-	else:
-		nodes = road_segments
-	
-	if nodes is None or len(nodes) == 0:
-		return None
+		if node.lot is None:
+			return None
+		nodes = set(road_segments) & node.lot.get_nodes()
 
 	# filter out bridges
 	nodes = [n for n in nodes if Type.BRIDGE not in n.type]
+
+	if len(nodes) == 0:
+		print("leave_lot = {} no road segments".format(leave_lot))
+
+		return None
 
 	dists = [math.hypot(n.x - x, n.y - y) for n in nodes]
 	node2 = nodes[dists.index(min(dists))]
 	(x2, y2) = (node2.x, node2.y)
 
-
-	if road_type is not Type.MINOR_ROAD and not leave_lot and node.lot is not None:
-		if abs(x - x2) < correction:
-			x = x2
-			node = node.landscape.array[x][y]
-		elif abs(y - y2) < correction:
-			y = y2
-			node = node.landscape.array[x][y]
+	# if node.lot is not None and road_type is not Type.MINOR_ROAD:
+	# 	if abs(x - x2) < correction:
+	# 		x = x2
+	# 		node = node.landscape.array[x][y]
+	# 	elif abs(y - y2) < correction:
+	# 		y = y2
+	# 		node = node.landscape.array[x][y]
 
 	if node.lot is None:
-		if node2.lot is not None:
-			(x2, y2) = node2.lot.center
-			(x, y) = (x + x - x2, y + y - y2)
+		if road_type is not Type.MINOR_ROAD and abs(x2 - x) > 10 and abs(y2 - y) > 10:
+		# if node2.lot is not None:
+		# 	(x2, y2) = node2.lot.center
+		# 	(x, y) = (x + x - x2, y + y - y2)
 
-			if x >= node.landscape.x:
-				x = node.landscape.x - 1
-			if x < 0:
-				x = 0
-			if y >= node.landscape.y:
-				y = node.landscape.y - 1
-			if y < 0:
-				y = 0
+		# 	if x >= node.landscape.x:
+		# 		x = node.landscape.x - 1
+		# 	if x < 0:
+		# 		x = 0
+		# 	if y >= node.landscape.y:
+		# 		y = node.landscape.y - 1
+		# 	if y < 0:
+		# 		y = 0
 
-		else:
-			(x2, y2) = (node2.x, node2.y)
-			
-		if abs(x2 - x) > 10 and abs(y2 - y) > 10 and road_type is Type.MAJOR_ROAD:
+		# else:
+		# 	(x2, y2) = (node2.x, node2.y)
+				
+			# if abs(x2 - x) > 10 and abs(y2 - y) > 10: # and road_type is Type.MAJOR_ROAD:
 			if not node.landscape.add_lot([(x2, y2), (x, y)]):
+				print("leave_lot = {} add lot failed".format(leave_lot))
+
 				return None
+		# else:
+		# 	print("leave_lot = {} proposed lot is too small{} or road is not MAJOR_ROAD{}".format(leave_lot, abs(x2 - x) > 10 and abs(y2 - y) > 10, road_type is Type.MAJOR_ROAD))
+
+		# 	return None
 		else:
 			return None
 

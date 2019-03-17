@@ -3,6 +3,7 @@
 # Copyright (c) 2019, Augmented Design Lab
 # All rights reserved.
 import copy
+import random
 import time
 
 from agent import Agent

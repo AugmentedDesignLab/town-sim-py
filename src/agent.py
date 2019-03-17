@@ -3,7 +3,7 @@
 # Copyright (c) 2019, Augmented Design Lab
 # All rights reserved.
 import random
-from util import Type, get_pt_avg
+from util import Type, Activity, get_pt_avg
 
 class Agent:
 	water_max = 100
@@ -30,7 +30,7 @@ class Agent:
 		(mid_x, mid_y) = (int(ax), int(ay))
 		midnode = self.landscape.array[mid_x][mid_y]
 		if len(set(midnode.local()) & set(self.landscape.bypass_roads)) == 0:
-			midnode.add_traffic(10)
+			midnode.add_traffic(Activity.MOVE)
 		self.x = node.x
 		self.y = node.y
 		self.node.remove_agent(self)
@@ -49,7 +49,8 @@ class Agent:
 		local_prosperity = self.node.local_prosperity
 		local_pop = sum([len(n.agents) for n in self.node.local()])
 		
-		if local_prosperity / 20 - len(self.node.agents) > 20 and local_pop < 50 and self.water > 10 and self.resource > 10 and random.random() < 0.5:
+		# restrict total agent number to prevent out of memory 
+		if local_pop < 50 and len(self.simulation.agents) < 10000 and self.water > 10 and self.resource > 10 and random.random() < 0.5:
 			agent = Agent(landscape, self.simulation, self.x, self.y)
 			self.water = agent.water = self.water / 2
 			self.resource = agent.resource = self.resource / 2
@@ -111,7 +112,7 @@ class Agent:
 			places = self.node.water_neighbors()
 			if len(places) > 0:
 				place = random.choice(places)
-				place.add_prosperity(10)
+				place.add_prosperity(Activity.WORK)
 				self.move(place)
 				gathered = max(self.water_max - self.water, 10)
 				self.water += gathered
@@ -120,19 +121,23 @@ class Agent:
 			if len(places) > 0:
 				place = random.choice(places)
 				if Type.BUILDING in place.type:
-					place.add_prosperity(1)
+					place.add_prosperity(Activity.WORK_BUILT)
 				else:
-					place.add_prosperity(10)
+					place.add_prosperity(Activity.WORK)
 				self.move(place)
-				gathered = max(self.resource_max - self.resource, 1 if Type.GREEN in place.type else 10)
+
+				gathered = 1 if Type.GREEN in place.type else 10
+				if Type.BUILDING in place.type:
+					gathered = max(place.built_resources(), gathered)
+				gathered = max(self.resource_max - self.resource, gathered)
 				self.resource += gathered
 
 	def rest(self, landscape):
-		reachable_built = [node for node in self.node.range() if node in landscape.built]
+		reachable_built = [node for node in self.node.range() if node in landscape.built and len(node.agents) < 10]
 		if len(reachable_built) == 0:
 			self.simulation.kill(self)
 			return
 		else:
 			node = random.choice(reachable_built)
 			self.move(node)
-			node.add_prosperity(10)
+			node.add_prosperity(Activity.REST)

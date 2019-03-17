@@ -26,7 +26,10 @@ class Node:
 		self.maroad_range = r4
 		self.__water_neighbors = []
 		self.__resource_neighbors = []
-		self.updateFlag = False
+		self.__built_resources = 0
+
+	def built_resources(self):
+		return self.__built_resources
 
 	def water_neighbors(self):
 		return self.__water_neighbors
@@ -59,11 +62,11 @@ class Node:
 
 	def add_prosperity(self, amt):
 		self.landscape.prosperity[self.x, self.y] += amt
-		self.updateFlag = True
+		self.landscape.updateFlags[self.x, self.y] = 1
 
 	def add_traffic(self, amt):
 		self.landscape.traffic[self.x, self.y] += amt
-		self.updateFlag = True
+		self.landscape.updateFlags[self.x, self.y] = 1
 
 	def prosperity(self):
 		return self.landscape.prosperity[self.x, self.y]
@@ -83,43 +86,59 @@ class Node:
 
 	def range(self):
 		if self.__range is None:
-			self.get_local()
+			self.get_range()
 		return self.__range
 
 	def major_road_range(self):
 		if self.__major_road_range is None:
-			self.get_local()
+			self.get_range()
 		return self.__major_road_range
 
 	def get_local(self):
 		local = set([self])
 		for i in range(1, self.local_range + 1):
-			local.update(set([e for n in local for e in n.adjacent if Type.WATER not in e.type]))
-			if i == self.plot_range:
+			new_neighbors = set([e for n in local for e in n.adjacent if e not in local if Type.WATER not in e.type])
+			if len(new_neighbors) == 0:
 				self.__plot = list(local)
-			if i == self.local_range:
+				self.__local = list(local)
+				break
+			local.update(new_neighbors)
+			if i == self.plot_range - 1:
+				self.__plot = list(local)
+			if i == self.local_range - 1:
 				self.__local = list(local)
 
+	def get_range(self):
 		local = set([self])
 		for i in range(1, self.explore_range + 1): #self.maroad_range + 1): maroad_range not used currently
-			local.update(set([e for n in local for e in n.neighbors]))
+			new_neighbors = set([e for n in local for e in n.neighbors if e not in local])
+			if len(new_neighbors) == 0:
+				self.__range = list(local)
+				self.__water_neighbors = [l for l in self.__range if Type.WATER in l.type]
+				self.__resource_neighbors = [l for l in self.__range if (Type.BUILDING in l.type and l.prosperity() > 300) or Type.FOREST in l.type or Type.GREEN in l.type]
+				break
+			local.update(new_neighbors)
 
-			if i == self.explore_range:
+			if i == self.explore_range - 1:
 				self.__range = list(local)
 				self.__water_neighbors = [l for l in self.__range if Type.WATER in l.type]
 				self.__resource_neighbors = [l for l in self.__range if (Type.BUILDING in l.type and l.prosperity() > 300) or Type.FOREST in l.type or Type.GREEN in l.type]
 			# if i == self.maroad_range:
 			# 	self.__major_road_range = list(local)
 
+		self.__built_resources = self.prosperity() 
+
 	def get_lot(self):
+		# finds enclosed green areas
 		lot = set([self])
-		for i in range(10):
-			neighbors = set([e for n in lot for e in n.neighbors if (Type.GREEN in e.type or Type.FOREST in e.type or Type.BUILDING in e.type)])
-			if len(neighbors - lot) == 0:
+		new_neighbors = set()
+		for i in range(5):
+			new_neighbors = set([e for n in lot for e in n.adjacent if e not in lot and (Type.GREEN in e.type or Type.FOREST in e.type or Type.BUILDING in e.type)])
+			accept = set([n for n in new_neighbors if Type.BUILDING not in n.type])
+			if len(new_neighbors) == 0:
 				break
-			lot.update(neighbors)
-		neighbors = set([e for n in lot for e in n.neighbors if (Type.GREEN in e.type or Type.FOREST in e.type or Type.BUILDING in e.type)])
-		if len(neighbors - lot) == 0:
+			lot.update(accept)
+		if len([n for n in new_neighbors if Type.BUILDING not in n.type]) == 0: #neighbors except self
 			return lot
 		else:
 			return None
