@@ -12,8 +12,8 @@ from lot import Lot
 import gc
 
 class Simulation:
-	def __init__(self, size=200, r1=3, r2=5, r3=10, r4=10):
-		self.landscape = Landscape(size, size, self, r1, r2, r3, r4)
+	def __init__(self, size=200, r1=3, r2=5, r3=10, r4=10, load_filename=None):
+		self.landscape = Landscape(size, size, self, r1, r2, r3, r4, load_filename)
 		self.agents = []
 		for i in range(100): #200
 			self.add_agent(Agent(self.landscape, self))

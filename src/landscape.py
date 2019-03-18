@@ -19,17 +19,12 @@ from util import Type, get_line, check_turn_and_endpoint, check_overlapping_node
 from util2 import get_closest_point, get_point_to_close_gap_minor, get_point_to_close_gap_major
 
 class Landscape:
-	def __init__(self, x, y, simulation, r1, r2, r3, r4):
+	def __init__(self, x, y, simulation, r1, r2, r3, r4, load_filename=None):
 		self.roadnodes = []
 		self.roadsegments = set()
 		self.x = x
 		self.y = y
 		self.simulation = simulation
-		self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
-		self.nodes = [node for row in self.array for node in row]
-		self.prosperity = np.zeros((x, y)) 
-		self.traffic = np.zeros((x, y)) 
-		self.updateFlags = np.zeros((x, y))
 
 		self.built = set()
 		self.roads = []
@@ -37,6 +32,15 @@ class Landscape:
 		self.bypass_nodes = [] # bypass nodes are still waiting for more connections
 
 		self.lots = set()
+
+		if load_filename is not None:
+			self.load_state(load_filename)
+		else:
+			self.prosperity = np.zeros((x, y)) 
+			self.traffic = np.zeros((x, y)) 
+			self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
+		self.nodes = [node for row in self.array for node in row]
+		self.updateFlags = np.zeros((x, y))
 
 		#make neighbors; a node should not be its own neighbor
 		for i in range(x):
