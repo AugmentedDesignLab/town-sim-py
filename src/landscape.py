@@ -4,7 +4,9 @@
 # All rights reserved.
 from collections import Counter
 import cv2
+import datetime
 import numpy as np
+import pickle
 from PIL import Image
 import random
 from scipy.interpolate import splrep, splev
@@ -371,6 +373,9 @@ class Landscape:
 		return img
 
 	def output(self, filename):
+		print("saving state...")
+		currentDT = datetime.datetime.now()
+		self.save_state("{}.p".format(currentDT.strftime(%Y%m%d%H%M%S)))
 		print("Calculating nodes...")
 		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
 		counted = Counter()
@@ -410,3 +415,11 @@ class Landscape:
 				print("({}, {}):  	connectivity: {},  	local depth: {},  	global depth: {}".format(
 					junction.x, junction.y, connectivity, local_depth, global_depth), file=file)
 		print("Stats saved to file.")
+
+	def save_state(self, filename):
+		to_store = [self.array, self.prosperity, self.traffic, self.roadnodes, self.roadsegments]
+		pickle.dump(to_store, open(filename, "wb"))
+
+	def load_state(self, filename):
+		[self.array, self.prosperity, self.traffic, self.roadnodes, self.roadsegments] = pickle.load(open(filename, "wb"))
+		self.view(filename)
