@@ -35,43 +35,44 @@ class Landscape:
 
 		if load_filename is not None:
 			self.load_state(load_filename)
+			self.view(load_filename)
 		else:
 			self.prosperity = np.zeros((x, y)) 
 			self.traffic = np.zeros((x, y)) 
 			self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
-		self.nodes = [node for row in self.array for node in row]
-		self.updateFlags = np.zeros((x, y))
+			self.nodes = [node for row in self.array for node in row]
+			self.updateFlags = np.zeros((x, y))
 
-		#make neighbors; a node should not be its own neighbor
-		for i in range(x):
-			for j in range(y):
-				node = self.array[i][j]
-				if i > 0:
-					node.add_adjacent(self.array[i - 1][j])
-					node.add_neighbor(self.array[i - 1][j])
-				if j > 0:
-					node.add_adjacent(self.array[i][j - 1])
-					node.add_neighbor(self.array[i][j - 1])
-				if i + 1 < x:
-					node.add_adjacent(self.array[i + 1][j])
-					node.add_neighbor(self.array[i + 1][j])
-				if j + 1 < y:
-					node.add_adjacent(self.array[i][j + 1])
-					node.add_neighbor(self.array[i][j + 1])
-				if i > 0 and j > 0:
-					node.add_adjacent(self.array[i - 1][j - 1])
-					node.add_neighbor(self.array[i - 1][j - 1])		
-				if i + 1 < x and j > 0:
-					node.add_adjacent(self.array[i + 1][j - 1])
-					node.add_neighbor(self.array[i + 1][j - 1])
-				if i > 0 and j + 1 < y:
-					node.add_adjacent(self.array[i - 1][j + 1])
-					node.add_neighbor(self.array[i - 1][j + 1])
-				if i + 1 < x and j + 1 < y:
-					node.add_adjacent(self.array[i + 1][j + 1])
-					node.add_neighbor(self.array[i + 1][j + 1])
+			#make neighbors; a node should not be its own neighbor
+			for i in range(x):
+				for j in range(y):
+					node = self.array[i][j]
+					if i > 0:
+						node.add_adjacent(self.array[i - 1][j])
+						node.add_neighbor(self.array[i - 1][j])
+					if j > 0:
+						node.add_adjacent(self.array[i][j - 1])
+						node.add_neighbor(self.array[i][j - 1])
+					if i + 1 < x:
+						node.add_adjacent(self.array[i + 1][j])
+						node.add_neighbor(self.array[i + 1][j])
+					if j + 1 < y:
+						node.add_adjacent(self.array[i][j + 1])
+						node.add_neighbor(self.array[i][j + 1])
+					if i > 0 and j > 0:
+						node.add_adjacent(self.array[i - 1][j - 1])
+						node.add_neighbor(self.array[i - 1][j - 1])		
+					if i + 1 < x and j > 0:
+						node.add_adjacent(self.array[i + 1][j - 1])
+						node.add_neighbor(self.array[i + 1][j - 1])
+					if i > 0 and j + 1 < y:
+						node.add_adjacent(self.array[i - 1][j + 1])
+						node.add_neighbor(self.array[i - 1][j + 1])
+					if i + 1 < x and j + 1 < y:
+						node.add_adjacent(self.array[i + 1][j + 1])
+						node.add_neighbor(self.array[i + 1][j + 1])
 
-		self.init_geography()
+			self.init_geography()
 					
 	def add_agent(self, agent):
 		self.array[agent.x][agent.y].add_agent(agent)
