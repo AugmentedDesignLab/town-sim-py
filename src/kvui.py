@@ -127,9 +127,10 @@ class UI(App):
 		return layout
 
 def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
+	global output_request, pause_request
 	p = np.sum(simulation.landscape.prosperity)
 
-	if output_request is not None and output_request.is_set():
+	if output_request.is_set():
 		simulation.output(outputFile)
 		output.set()
 		output_request.clear()
