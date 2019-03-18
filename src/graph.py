@@ -49,7 +49,7 @@ def run_simulation_noui():
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--noui", action="store_true", help="Suppresses UI if set.")
-	parser.add_argument("-o", "--output", type=int, help="Output file name. Default: output.txt.")
+	parser.add_argument("-o", "--output", type=str, help="Output file name. Default: output.txt.")
 	parser.add_argument("-s", "--size", type=int, help="n for nxn grid. Default: 200.")
 	parser.add_argument("-c", "--cycles", type=int, help="The number of full cycles to run before ending simulation in commandline. The simulation does not self-terminate when running in UI. Default: 15.")
 	parser.add_argument("-p2", "--phase2", type=int, help="Minimum total prosperity to allow calculation for bypass roads. Default: 200000.")
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 	parser.add_argument("-dp", "--prosperityDecay", type=float, help="Rate of prosperity decay. Default: 0.75.")
 	parser.add_argument("-dt", "--trafficDecay", type=float, help="Rate of traffic-density decay. Default: 0.25.")
 	parser.add_argument("-co", "--correction", type=float, help="Correction to grid of new roads. Default: 5.")
-	parser.add_argument("-l", "--load", type=int, help="Load file name. Default: None.")
+	parser.add_argument("-l", "--load", type=str, help="Load file name. Default: None.")
 
 	args = parser.parse_args()
 	if args.output:
