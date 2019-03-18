@@ -35,7 +35,9 @@ class Landscape:
 
 		if load_filename is not None:
 			self.load_state(load_filename)
+			print('loaded state')
 			self.view(load_filename)
+			print('should be viewing loaded state')
 		else:
 			self.prosperity = np.zeros((x, y)) 
 			self.traffic = np.zeros((x, y)) 
