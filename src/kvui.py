@@ -157,20 +157,23 @@ def run_simulation_inner_loop(queue, stop_request, output_request, pause_request
 	print(len(simulation.agents))
 
 def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum, load_filename):
-	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4, load_filename=load_filename)
-	counter = 0
-	while True:
-		if output_request.is_set():
-			simulation.output(outputFile)
-			output.set()
-			output_request.clear()
-		if pause_request.is_set():
-			pass
-		if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
-			stop_request.clear()
-			print("exiting subprocess")
-			exit(0)
-		counter += 1
+	if load_filename:
+		simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4, load_filename=load_filename)
+	else:
+		simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
+		counter = 0
+		while True:
+			if output_request.is_set():
+				simulation.output(outputFile)
+				output.set()
+				output_request.clear()
+			if pause_request.is_set():
+				pass
+			if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
+				stop_request.clear()
+				print("exiting subprocess")
+				exit(0)
+			counter += 1
 
 def read_simulation(dt):
 	global queue, kvbox
