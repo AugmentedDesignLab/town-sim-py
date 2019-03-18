@@ -433,6 +433,7 @@ class Landscape:
 		pickle.dump(to_store, open(filename, "wb"))
 
 	def load_state(self, filename):
+		print("trying to load from file")
 		# [nodearray, self.prosperity, self.traffic, self.roadnodes, self.roadsegments] = pickle.load(open(filename, "wb"))
 		[nodearray, self.prosperity, self.traffic, roadsegments] = pickle.load(open(filename, "rb"))
 		print("pickle loaded file")
