@@ -211,7 +211,7 @@ class Landscape:
 		if len(self.bypass_roads) == 0: # should only be true for the first bypass node
 			self.bypass_nodes.append(node)
 			return 
-		point = get_closest_point(node, self.lots, self.bypass_roads, Type.BYPASS, True, correction=correction)
+		point, points = get_closest_point(node, self.lots, self.bypass_roads, Type.BYPASS, True, correction=correction)
 		if point is None:
 			return 
 		(x2, y2) = point
@@ -219,7 +219,6 @@ class Landscape:
 		if len(set(node2.local()) & set(self.bypass_nodes)) > 0:
 			return
 
-		points = get_line((x1, y1), (node2.x, node2.y))
 		self.roadnodes.append(node)
 		self.roadnodes.append(node2)
 		self.roadsegments.add(RoadSegment(node, node2))
@@ -228,13 +227,10 @@ class Landscape:
 	
 	def set_new_road(self, x1, y1, road_type, leave_lot=False, correction=5):
 		node = self.array[x1][y1]
-		point = get_closest_point(node, self.lots, self.roads, road_type, leave_lot, correction=correction)
+		point, points = get_closest_point(node, self.lots, self.roads, road_type, leave_lot, correction=correction)
 		if point is None:
 			return 
 		(x2, y2) = point
-		points = get_line((x1, y1), (x2, y2))
-		if len(points) < 2:
-			return
 		self.roadnodes.append(node)
 		self.roadnodes.append(self.array[x2][y2])
 		self.roadsegments.add(RoadSegment(node, self.array[x2][y2]))

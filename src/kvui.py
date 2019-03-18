@@ -140,18 +140,22 @@ def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2th
 		pass
 
 	phase = 1
-	for i in range(3):
+	for i in range(5):
 		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
 	if p > phase2threshold:
 		phase = 2
-	simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+	for i in range(5):
+		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
 	if p > phase3threshold:
 		phase = 3
-	simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+	for i in range(5):
+		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
 	queue.put(simulation.view('{}-{}'.format(counter, phase)))
+	print(p)
+	print(len(simulation.agents))
 
 def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum):
 	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)

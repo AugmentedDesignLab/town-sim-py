@@ -50,7 +50,7 @@ class Agent:
 		local_pop = sum([len(n.agents) for n in self.node.local()])
 		
 		# restrict total agent number to prevent out of memory 
-		if local_pop < 50 and len(self.simulation.agents) < 10000 and self.water > 10 and self.resource > 10 and random.random() < 0.5:
+		if local_pop < 50 and len(self.simulation.agents) < 100000 and self.water > 10 and self.resource > 10 and random.random() < 0.5:
 			agent = Agent(landscape, self.simulation, self.x, self.y)
 			self.water = agent.water = self.water / 2
 			self.resource = agent.resource = self.resource / 2
