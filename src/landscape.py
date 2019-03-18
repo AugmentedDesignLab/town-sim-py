@@ -375,7 +375,7 @@ class Landscape:
 	def output(self, filename):
 		print("saving state...")
 		currentDT = datetime.datetime.now()
-		self.save_state("{}.p".format(currentDT.strftime(%Y%m%d%H%M%S)))
+		self.save_state("{}.p".format(currentDT.strftime("%Y%m%d%H%M%S")))
 		print("Calculating nodes...")
 		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
 		counted = Counter()
