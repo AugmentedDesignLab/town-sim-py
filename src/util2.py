@@ -38,7 +38,7 @@ def get_closest_point(node, lots, road_segments, road_type, leave_lot, correctio
 	# 		node = node.landscape.array[x][y]
 
 	if node.lot is None:
-		if road_type is not Type.MINOR_ROAD:# and abs(x2 - x) > 5 and abs(y2 - y) > 5:
+		if road_type is not Type.MINOR_ROAD and abs(x2 - x) > 10 and abs(y2 - y) > 10:
 			if node2.lot is not None:
 				(cx2, cy2) = node2.lot.center
 				(x, y) = (x + x - cx2, y + y - cy2)

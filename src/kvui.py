@@ -125,7 +125,7 @@ class UI(App):
 		layout02.add_widget(kvbox)
 		layout.add_widget(layout02)
 		return layout
-
+  
 def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
 	p = np.sum(simulation.landscape.prosperity)
 
