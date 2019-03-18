@@ -38,7 +38,7 @@ def button_start(instance):
 		pause_request = Event()	
 		output = Event()
 
-		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output, ui.phase2threshold, ui.phase3threshold, ui.gridSize, ui.outputFile, ui.maNum, ui.miNum, ui.byNum, ui.brNum, ui.r1, ui.r2, ui.r3, ui.r4, ui.buNum, ui.pDecay, ui.tDecay, ui.corNum))
+		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output, ui.phase2threshold, ui.phase3threshold, ui.gridSize, ui.outputFile, ui.maNum, ui.miNum, ui.byNum, ui.brNum, ui.r1, ui.r2, ui.r3, ui.r4, ui.buNum, ui.pDecay, ui.tDecay, ui.corNum, ui.load_filename))
 		p.daemon = True
 		p.start()
 		if read_event is not None:
@@ -126,7 +126,11 @@ class UI(App):
 		layout.add_widget(layout02)
 		return layout
   
-def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
+def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, load_filename):
+	if load_filename is not None:
+		simulation.landscape.load_state(load_filename)
+		pause_request.set()
+
 	p = np.sum(simulation.landscape.prosperity)
 
 	if output_request.is_set():
@@ -156,7 +160,7 @@ def run_simulation_inner_loop(queue, stop_request, output_request, pause_request
 	print(p)
 	print(len(simulation.agents))
 
-def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum):
+def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum, load_filename):
 	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
 	counter = 0
 	while True:
@@ -166,7 +170,7 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 			output_request.clear()
 		if pause_request.is_set():
 			pass
-		if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
+		if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, load_filename) == 1:
 			stop_request.clear()
 			print("exiting subprocess")
 			exit(0)
@@ -188,7 +192,7 @@ def read_simulation(dt):
 		image = kiImage(source='', pos=kvbox.pos, size=kvbox.size)
 		image.texture = CoreImage(imgData, ext='png').texture
 
-def run_kv(o, g, phase2, phase3, ma, mi, by, br, r1, r2, r3, r4, buNum, pDecay, tDecay, cor):
+def run_kv(o, g, phase2, phase3, ma, mi, by, br, r1, r2, r3, r4, buNum, pDecay, tDecay, cor, load_filename=None):
 	global ui
 	ui = UI()
 	ui.outputFile = o
@@ -207,4 +211,5 @@ def run_kv(o, g, phase2, phase3, ma, mi, by, br, r1, r2, r3, r4, buNum, pDecay, 
 	ui.pDecay = pDecay
 	ui.tDecay = tDecay
 	ui.corNum = cor
+	ui.load_filename = load_filename
 	ui.run()

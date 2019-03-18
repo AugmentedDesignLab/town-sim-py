@@ -65,6 +65,7 @@ if __name__ == "__main__":
 	parser.add_argument("-dp", "--prosperityDecay", type=float, help="Rate of prosperity decay. Default: 0.75.")
 	parser.add_argument("-dt", "--trafficDecay", type=float, help="Rate of traffic-density decay. Default: 0.25.")
 	parser.add_argument("-co", "--correction", type=float, help="Correction to grid of new roads. Default: 5.")
+	parser.add_argument("-l", "--load", type=int, help="Load file name. Default: None.")
 
 	args = parser.parse_args()
 	if args.output:
@@ -101,11 +102,13 @@ if __name__ == "__main__":
 		tDecay = args.trafficDecay
 	if args.correction:
 		corNum = args.correction
+	if args.load:
+		load_filename = args.load
 
 	if args.noui is False:
 		sys.argv = sys.argv[0:1]
 		import kvui
-		kvui.run_kv(outputFile, gridSize, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum)
+		kvui.run_kv(outputFile, gridSize, phase2threshold, phase3threshold, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum, load_filename=load_filename)
 	else:
 		# do no ui things
 		print ("This might take a while.")
