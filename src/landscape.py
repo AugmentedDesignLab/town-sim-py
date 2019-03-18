@@ -419,8 +419,8 @@ class Landscape:
 
 	def save_state(self, filename):
 		sys.setrecursionlimit(1000)
-		nodearray = [[(self.array[i][j].type) for j in range(self.y)] for i in range(self.x)]
-		to_store = [nodearray, self.prosperity, self.traffic, self.roadnodes, self.roadsegments]
+		# nodearray = [[(self.array[i][j].type) for j in range(self.y)] for i in range(self.x)]
+		to_store = [self.prosperity, self.traffic, self.roadnodes, self.roadsegments]
 		pickle.dump(to_store, open(filename, "wb"))
 
 	def load_state(self, filename):
