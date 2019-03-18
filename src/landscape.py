@@ -39,8 +39,6 @@ class Landscape:
 		if load_filename is not None:
 			self.load_state(load_filename)
 			print('loaded state')
-			self.view(load_filename)
-			print('should be viewing loaded state')
 		else:
 			self.prosperity = np.zeros((x, y)) 
 			self.traffic = np.zeros((x, y)) 
@@ -449,5 +447,3 @@ class Landscape:
 			(x1, y1, x2, y2) = rs
 			self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2]))
 		print("finished loading road segments")
-
-		self.view(filename)

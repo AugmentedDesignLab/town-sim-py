@@ -159,6 +159,9 @@ def run_simulation_inner_loop(queue, stop_request, output_request, pause_request
 def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum, load_filename):
 	if load_filename:
 		simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4, load_filename=load_filename)
+		queue.put(simulation.view(load_filename))
+		print('should be viewing loaded state')
+
 	else:
 		simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
 		counter = 0
