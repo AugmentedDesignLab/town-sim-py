@@ -417,13 +417,13 @@ class Landscape:
 		print("Stats saved to file.")
 
 	def save_state(self, filename):
-		nodearray = [[(self.array[i][j].adjacent, self.array[i][j].neighbors, self.array[i][j].type) for j in range(y)] for i in range(x)]
+		nodearray = [[(self.array[i][j].adjacent, self.array[i][j].neighbors, self.array[i][j].type) for j in range(self.y)] for i in range(self.x)]
 		to_store = [nodearray, self.prosperity, self.traffic, self.roadnodes, self.roadsegments]
 		pickle.dump(to_store, open(filename, "wb"))
 
 	def load_state(self, filename):
 		[nodearray, self.prosperity, self.traffic, self.roadnodes, self.roadsegments] = pickle.load(open(filename, "wb"))
-		for i in range(x):
-			for j in range(y):
+		for i in range(len(nodearray)):
+			for j in range(len(nodearray[0])):
 				(self.array[i][j].adjacent, self.array[i][j].neighbors, self.array[i][j].type) = nodearray[i][j]
 		self.view(filename)
