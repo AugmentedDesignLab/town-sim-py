@@ -435,15 +435,18 @@ class Landscape:
 	def load_state(self, filename):
 		# [nodearray, self.prosperity, self.traffic, self.roadnodes, self.roadsegments] = pickle.load(open(filename, "wb"))
 		[nodearray, self.prosperity, self.traffic, roadsegments] = pickle.load(open(filename, "rb"))
+		print("pickle loaded file")
 		for i in range(len(nodearray)):
 			for j in range(len(nodearray[0])):
 				ntype = nodearray[i][j]
 				self.array[i][j].type = ntype
 				if Type.MAJOR_ROAD in ntype or Type.MINOR_ROAD in ntype or Type.BRIDGE in ntype or Type.BYPASS in ntype or Type.HIGHWAY in ntype:
-					self.roadnodes.append(ntype)
+					self.roadnodes.append(self.array[i][j])
 					# need to make roadnodes neighbor to each other to continue running, but not needed for simply reconstructing
+		print("finished loading nodes")
 		for rs in roadsegments:
 			(x1, y1, x2, y2) = rs
 			self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2]))
+		print("finished loading road segments")
 
 		self.view(filename)
