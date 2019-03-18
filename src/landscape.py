@@ -436,6 +436,6 @@ class Landscape:
 					# need to make roadnodes neighbor to each other to continue running, but not needed for simply reconstructing
 		for rs in roadsegments:
 			(x1, y1, x2, y2) = rs
-			self.roadsegments.update(RoadSegment(self.array[x1][y1], self.array[x2][y2]))
+			self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2]))
 
 		self.view(filename)
