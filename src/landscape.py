@@ -426,7 +426,7 @@ class Landscape:
 
 	def load_state(self, filename):
 		# [nodearray, self.prosperity, self.traffic, self.roadnodes, self.roadsegments] = pickle.load(open(filename, "wb"))
-		[nodearray, self.prosperity, self.traffic, roadsegments] = pickle.load(open(filename, "r"))
+		[nodearray, self.prosperity, self.traffic, roadsegments] = pickle.load(open(filename, "rb"))
 		for i in range(len(nodearray)):
 			for j in range(len(nodearray[0])):
 				ntype = nodearray[i][j]
