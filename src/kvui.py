@@ -126,8 +126,7 @@ class UI(App):
 		layout.add_widget(layout02)
 		return layout
 
-def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
-	global output_request, pause_request
+def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
 	p = np.sum(simulation.landscape.prosperity)
 
 	if output_request.is_set():
@@ -167,7 +166,7 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 			output_request.clear()
 		if pause_request.is_set():
 			pass
-		if run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
+		if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
 			stop_request.clear()
 			print("exiting subprocess")
 			exit(0)
