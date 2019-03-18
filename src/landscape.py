@@ -33,6 +33,9 @@ class Landscape:
 
 		self.lots = set()
 
+		self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
+		self.nodes = [node for row in self.array for node in row]
+
 		if load_filename is not None:
 			self.load_state(load_filename)
 			print('loaded state')
@@ -41,8 +44,6 @@ class Landscape:
 		else:
 			self.prosperity = np.zeros((x, y)) 
 			self.traffic = np.zeros((x, y)) 
-			self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
-			self.nodes = [node for row in self.array for node in row]
 			self.updateFlags = np.zeros((x, y))
 
 			#make neighbors; a node should not be its own neighbor
