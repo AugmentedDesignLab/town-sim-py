@@ -29,8 +29,9 @@ def button_start(instance):
 	pause_btn.disabled = False
 	stop_btn.disabled = False
 
-	if pause_request is not None and pause_request.is_set():
-		pause_request.clear()
+	if pause_request is not None:
+		if pause_request.is_set():
+			pause_request.clear()
 	else:
 		queue = Queue()
 		stop_request = Event()
@@ -134,7 +135,6 @@ def run_simulation_inner_loop(queue, stop_request, simulation, counter, phase2th
 		output.set()
 		output_request.clear()
 	if stop_request.is_set():
-		stop_request.clear()
 		return 1
 	if pause_request.is_set():
 		pass
