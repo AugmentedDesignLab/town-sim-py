@@ -418,7 +418,7 @@ class Landscape:
 		print("Stats saved to file.")
 
 	def save_state(self, filename):
-		sys.setrecursionlimit(20)
+		sys.setrecursionlimit(1000)
 		nodearray = [[(self.array[i][j].type) for j in range(self.y)] for i in range(self.x)]
 		to_store = [nodearray, self.prosperity, self.traffic, self.roadnodes, self.roadsegments]
 		pickle.dump(to_store, open(filename, "wb"))
