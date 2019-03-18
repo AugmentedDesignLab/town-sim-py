@@ -420,13 +420,22 @@ class Landscape:
 	def save_state(self, filename):
 		sys.setrecursionlimit(1000)
 		nodearray = [[(self.array[i][j].type) for j in range(self.y)] for i in range(self.x)]
-		to_store = [nodearray, self.prosperity, self.traffic]#, self.roadnodes, self.roadsegments]
+		roadsegments = [(rs.rnode1.x, rs.rnode1.y, rs.rnode2.x, rs.rnode2.y) for rs in self.roadsegments]
+		to_store = [nodearray, self.prosperity, self.traffic, roadsegments]
 		pickle.dump(to_store, open(filename, "wb"))
 
 	def load_state(self, filename):
 		# [nodearray, self.prosperity, self.traffic, self.roadnodes, self.roadsegments] = pickle.load(open(filename, "wb"))
-		[nodearray, self.prosperity, self.traffic] = pickle.load(open(filename, "wb"))
+		[nodearray, self.prosperity, self.traffic, roadsegments] = pickle.load(open(filename, "wb"))
 		for i in range(len(nodearray)):
 			for j in range(len(nodearray[0])):
-				(self.array[i][j].type) = nodearray[i][j]
+				ntype = nodearray[i][j]
+				self.array[i][j].type = ntype
+				if Type.MAJOR_ROAD in ntype or Type.MINOR_ROAD in ntype or Type.BRIDGE in ntype or Type.BYPASS in ntype or Type.HIGHWAY in ntype:
+					self.roadnodes.append(ntype)
+					# need to make roadnodes neighbor to each other to continue running, but not needed for simply reconstructing
+		for rs in roadsegments:
+			(x1, y1, x2, y2) = rs
+			self.roadsegments.update(RoadSegment(self.array[x1][y1], self.array[x2][y2]))
+
 		self.view(filename)
