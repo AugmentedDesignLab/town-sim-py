@@ -25,6 +25,7 @@ buNum = 400
 pDecay = 0.75
 tDecay = 0.25
 corNum = 5
+load_filename = None
 
 def run_simulation_inner_loop_noui(simulation, counter):
 	p = sum(sum(simulation.landscape.prosperity, []))
