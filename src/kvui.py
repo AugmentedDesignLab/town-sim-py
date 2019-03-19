@@ -127,34 +127,37 @@ class UI(App):
 		return layout
   
 def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum):
-	p = np.sum(simulation.landscape.prosperity)
+	for cycle in range(25):
+		p = np.sum(simulation.landscape.prosperity)
 
-	if output_request.is_set():
-		simulation.output(outputFile)
-		output.set()
-		output_request.clear()
-	if stop_request.is_set():
-		return 1
-	if pause_request.is_set():
-		pass
+		if output_request.is_set():
+			simulation.output(outputFile)
+			output.set()
+			output_request.clear()
 
-	phase = 1
-	for i in range(5):
-		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+			stop_request.set() # some mess here
+		if stop_request.is_set():
+			return 1
+		if pause_request.is_set():
+			pass
 
-	if p > phase2threshold:
-		phase = 2
-	for i in range(5):
-		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+		phase = 1
+		for i in range(5):
+			simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
-	if p > phase3threshold:
-		phase = 3
-	for i in range(5):
-		simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+		if p > phase2threshold:
+			phase = 2
+		for i in range(5):
+			simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
-	queue.put(simulation.view('{}-{}'.format(counter, phase)))
-	print(p)
-	print(len(simulation.agents))
+		if p > phase3threshold:
+			phase = 3
+		for i in range(5):
+			simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+
+	timestamp = simulation.landscape.output('output.txt')
+	queue.put(simulation.view(timestamp)))
+
 
 def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum, load_filename):
 	if load_filename:
@@ -172,6 +175,7 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 				output_request.clear()
 			if pause_request.is_set():
 				pass
+
 			if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
 				stop_request.clear()
 				print("exiting subprocess")
