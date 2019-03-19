@@ -126,7 +126,7 @@ class UI(App):
 		layout.add_widget(layout02)
 		return layout
   
-def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, r1, r2, r3, r4):
+def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, gridSize, r1, r2, r3, r4):
 	print("start new simulation") # this is hard coded and bad
 	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
 
@@ -180,7 +180,7 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 				pass
 
 			# if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
-			if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, r1, r2, r3, r4) == 1:
+			if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, gridSize, r1, r2, r3, r4) == 1:
 				stop_request.clear()
 				print("exiting subprocess")
 				exit(0)
