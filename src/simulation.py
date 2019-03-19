@@ -22,7 +22,7 @@ class Simulation:
 	def step(self, phase, maNum=10, miNum=400, byNum=2000, brNum=5000, buNum=400, pDecay=0.75, tDecay=0.25, corNum=5):
 		self.landscape.step(phase, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum)
 		killlist = []
-		for agent in self.agents:
+		for agent in list(self.agents):
 			agent.step(self.landscape)
 			if agent.water < 0 or agent.resource < 0:
 				killlist.append(agent)
