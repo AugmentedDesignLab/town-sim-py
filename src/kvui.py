@@ -156,7 +156,7 @@ def run_simulation_inner_loop(queue, stop_request, output_request, pause_request
 			simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
 	timestamp = simulation.landscape.output('output.txt')
-	queue.put(simulation.view(timestamp)))
+	queue.put(simulation.view(timestamp))
 
 
 def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum, load_filename):
