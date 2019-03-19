@@ -19,23 +19,8 @@
 @use as default in test
 %does not have much effect
 
-1. lower mi:ma results in more windy mi roads
-2. hi ma seems to result in dendritic roads
-check broken roads?
+*. lower mi:ma results in more windy mi roads
+*. hi ma seems to result in dendritic roads
 
-parameter variation screenshots
 
-8-10 image sequence showing growth 
-river crossing
-radial bypass screenshots sequence ... point to it 
-garden conversion (even though it doesn't do anything)
-
-1. write save state code
-2. confirm that bypasses work 
 3. test all params 
-
-Analysis
-* radial road angle analysis
-* depth && connectivity 
-* other road angle (on grid)
-* screenshots chart
