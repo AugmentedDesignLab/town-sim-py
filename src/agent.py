@@ -43,7 +43,7 @@ class Agent:
 
 		self.work()
 		if len(self.node.agents) > 1:
-			self.trade(random.choice(self.node.agents))
+			self.trade(next(iter(self.node.agents)))
 		self.rest(landscape)
 
 		local_prosperity = self.node.local_prosperity
