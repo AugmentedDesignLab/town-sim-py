@@ -12,7 +12,7 @@ class Node:
 		self.neighbors = set()
 		self.x = x
 		self.y = y
-		self.agents = []
+		self.agents = set()
 		self.type = set([Type.GREEN if random.random() > 0.5 else Type.FOREST])
 		self.__plot = None
 		self.__local = None
@@ -44,20 +44,20 @@ class Node:
 		self.neighbors.add(node)
 
 	def add_agent(self, agent):
-		self.agents.append(agent)
+		self.agents.add(agent)
 
 	def remove_agent(self, agent):
-		self.agents.remove(agent)
+		self.agents.discard(agent)
 
 	def add_type(self, t):
 		self.type.add(t)
 
 	def rem_type(self, t):
-		self.type.remove(t)
+		self.type.discard(t)
 
 	def clear_type(self):
 		if self in self.landscape.built:
-			self.landscape.built.remove(self)
+			self.landscape.built.discard(self)
 		self.type.clear()
 
 	def add_prosperity(self, amt):
@@ -126,7 +126,7 @@ class Node:
 			# if i == self.maroad_range:
 			# 	self.__major_road_range = list(local)
 
-		self.__built_resources = self.prosperity() 
+		self.__built_resources = self.prosperity()  
 
 	def get_lot(self):
 		# finds enclosed green areas

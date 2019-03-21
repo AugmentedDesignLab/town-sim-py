@@ -5,6 +5,7 @@
 from collections import Counter
 import cv2
 import datetime
+import math
 import numpy as np
 import pickle
 from PIL import Image
@@ -140,10 +141,12 @@ class Landscape:
 		# prune not continuous
 		pruned_pts = []
 		for i in range(len(pts)):
-			if pts[i][0] < self.x and pts[i][0] >=0 and pts[i][1] >= 0 and pts[i][1] < self.y:
-				if i == 0 or (abs(pts[i-1][0] - pts[i][0]) <=1 and abs(pts[i-1][1] - pts[i][1]) <=1):
-					if i == len(pts)-1 or (abs(pts[i+1][0] - pts[i][0]) <=1 and abs(pts[i+1][1] - pts[i][1]) <=1):
-						pruned_pts.append((int(pts[i][0]), int(pts[i][1])))
+			(x, y) = pts[i]
+			if math.isfinite(x) and math.isfinite(y):
+				if x < self.x and x >= 0 and y >= 0 and y < self.y:
+					if i == 0 or (abs(pts[i-1][0] - x) <= 1 and abs(pts[i-1][1] - y) <= 1):
+						if i == len(pts)-1 or (abs(pts[i+1][0] - x) <= 1 and abs(pts[i+1][1] - y) <=1 ):
+							pruned_pts.append((int(x), int(y)))
 
 		if random.random() < 0.5:
 			pruned_pts = [(y, x) for (x, y) in pruned_pts]

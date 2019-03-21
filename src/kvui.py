@@ -130,7 +130,7 @@ def run_simulation_inner_loop(queue, stop_request, output_request, pause_request
 	print("start new simulation") # this is hard coded and bad
 	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
 
-	for cycle in range(150):
+	for cycle in range(50):
 		p = np.sum(simulation.landscape.prosperity)
 
 		if output_request.is_set():
