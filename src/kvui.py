@@ -158,7 +158,7 @@ def run_simulation_inner_loop(queue, stop_request, output_request, pause_request
 		for i in range(5):
 			simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
-	timestamp = simulation.landscape.output('output.txt')
+	timestamp = simulation.landscape.output(outputDir)
 	queue.put(simulation.view(timestamp))
 
 

@@ -3,7 +3,7 @@
 # Copyright (c) 2019, Augmented Design Lab
 # All rights reserved.
 import argparse
-from multiprocessing import Event, Queue, Process
+import numpy as np
 import sys
 
 from simulation import Simulation
