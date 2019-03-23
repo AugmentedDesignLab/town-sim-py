@@ -382,13 +382,17 @@ class Landscape:
 
 		return img
 
-	def output(self, filename):
+	def output(self, filedir):
+		if not os.isdir(filedir):
+			os.mkdir(filedir)
 		print("saving state...")
 		currentDT = datetime.datetime.now()
 		currentDT = currentDT.strftime("%Y%m%d%H%M%S")
-		self.save_state("{}.p".format(currentDT))
+		self.save_state("{}/{}.p".format(filedir, currentDT))
 
-		filename = "{}.{}".format(currentDT, filename)
+		filename = "output.txt"
+		stats_filename = "{}/stats_{}.{}".format(filedir, currentDT, filename)
+		filename = "{}/{}.{}".format(filedir, currentDT, filename)
 		print("Calculating nodes...")
 		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
 		counted = Counter()
@@ -420,7 +424,7 @@ class Landscape:
 		k local neighborhood: 1 < k < l
 		l maximum "shortest distance"
 		'''
-		with open('stats_' + filename, "w") as file:
+		with open(stats_filename, "w") as file:
 			for junction in set([rs.rnode1 for rs in self.roadsegments] + [rs.rnode2 for rs in self.roadsegments]):
 				connectivity = junction.get_connectivity(self.roadsegments)
 				local_depth = junction.get_local_depth(self.roadsegments, 3)

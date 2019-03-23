@@ -40,5 +40,5 @@ class Simulation:
 	def view(self, step):
 		return self.landscape.view(step)
 
-	def output(self, filename):
-		self.landscape.output(filename)
+	def output(self, filedir):
+		self.landscape.output(filedir)

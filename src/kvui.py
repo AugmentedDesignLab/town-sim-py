@@ -38,7 +38,7 @@ def button_start(instance):
 		pause_request = Event()	
 		output = Event()
 
-		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output, ui.phase2threshold, ui.phase3threshold, ui.gridSize, ui.outputFile, ui.maNum, ui.miNum, ui.byNum, ui.brNum, ui.r1, ui.r2, ui.r3, ui.r4, ui.buNum, ui.pDecay, ui.tDecay, ui.corNum, ui.load_filename))
+		p = Process(target=run_simulation, args=(queue, stop_request, output_request, pause_request, output, ui.phase2threshold, ui.phase3threshold, ui.gridSize, ui.outputDir, ui.maNum, ui.miNum, ui.byNum, ui.brNum, ui.r1, ui.r2, ui.r3, ui.r4, ui.buNum, ui.pDecay, ui.tDecay, ui.corNum, ui.load_filename))
 		p.daemon = True
 		p.start()
 		if read_event is not None:
@@ -77,7 +77,7 @@ class UI(App):
 	phase2threshold = 200000
 	phase3threshold = 80000
 	gridSize = 200
-	outputFile = "output.txt"
+	outputDir = None
 	maNum = 10
 	miNum = 400
 	byNum = 2000
@@ -126,7 +126,7 @@ class UI(App):
 		layout.add_widget(layout02)
 		return layout
   
-def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, gridSize, r1, r2, r3, r4):
+def run_simulation_inner_loop(queue, stop_request, output_request, pause_request, counter, phase2threshold, phase3threshold, outputDir, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, gridSize, r1, r2, r3, r4):
 	print("start new simulation") # this is hard coded and bad
 	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
 
@@ -134,7 +134,7 @@ def run_simulation_inner_loop(queue, stop_request, output_request, pause_request
 		p = np.sum(simulation.landscape.prosperity)
 
 		if output_request.is_set():
-			simulation.output(outputFile)
+			simulation.output(outputDir)
 			output.set()
 			output_request.clear()
 
@@ -162,7 +162,7 @@ def run_simulation_inner_loop(queue, stop_request, output_request, pause_request
 	queue.put(simulation.view(timestamp))
 
 
-def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputFile, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum, load_filename):
+def run_simulation(queue, stop_request, output_request, pause_request, output, phase2threshold, phase3threshold, gridSize, outputDir, maNum, miNum, byNum, brNum, r1, r2, r3, r4, buNum, pDecay, tDecay, corNum, load_filename):
 	if load_filename:
 		simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4, load_filename=load_filename)
 		queue.put(simulation.view(load_filename))
@@ -173,14 +173,14 @@ def run_simulation(queue, stop_request, output_request, pause_request, output, p
 		counter = 0
 		while True:
 			if output_request.is_set():
-				simulation.output(outputFile)
+				simulation.output(outputDir)
 				output.set()
 				output_request.clear()
 			if pause_request.is_set():
 				pass
 
-			# if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
-			if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, counter, phase2threshold, phase3threshold, outputFile, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, gridSize, r1, r2, r3, r4) == 1:
+			# if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, simulation, counter, phase2threshold, phase3threshold, outputDir, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum) == 1:
+			if run_simulation_inner_loop(queue, stop_request, output_request, pause_request, counter, phase2threshold, phase3threshold, outputDir, maNum, miNum, byNum, brNum, buNum, pDecay, tDecay, corNum, gridSize, r1, r2, r3, r4) == 1:
 				stop_request.clear()
 				print("exiting subprocess")
 				exit(0)
@@ -205,7 +205,7 @@ def read_simulation(dt):
 def run_kv(o, g, phase2, phase3, ma, mi, by, br, r1, r2, r3, r4, buNum, pDecay, tDecay, cor, load_filename=None):
 	global ui
 	ui = UI()
-	ui.outputFile = o
+	ui.outputDir = o
 	ui.gridSize = g
 	ui.phase2threshold = phase2
 	ui.phase3threshold = phase3
