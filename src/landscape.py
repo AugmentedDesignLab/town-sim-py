@@ -383,7 +383,7 @@ class Landscape:
 		return img
 
 	def output(self, filedir):
-		if not os.isdir(filedir):
+		if not os.path.isdir(filedir):
 			os.mkdir(filedir)
 		print("saving state...")
 		currentDT = datetime.datetime.now()
