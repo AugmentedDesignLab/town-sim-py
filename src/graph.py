@@ -46,25 +46,26 @@ def resetParams():
 	load_filename = None
 
 def run_simulation_noui():
-	for town in range(10):
-		print("start new simulation")
-		simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
-		for cycle in range(50):
-			p = np.sum(simulation.landscape.prosperity)
-			phase = 1
-			for i in range(5):
-				simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+	print("start new simulation")
+	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
+	for cycle in range(50):
+		if cycle % 10 == 0:
+			print("cycle {}".format(cycle))
+		p = np.sum(simulation.landscape.prosperity)
+		phase = 1
+		for i in range(5):
+			simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
-			if p > phase2threshold:
-				phase = 2
-			for i in range(5):
-				simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+		if p > phase2threshold:
+			phase = 2
+		for i in range(5):
+			simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
 
-			if p > phase3threshold:
-				phase = 3
-			for i in range(5):
-				simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
-		simulation.landscape.output(outputDir)
+		if p > phase3threshold:
+			phase = 3
+		for i in range(5):
+			simulation.step(phase, maNum=maNum, miNum=miNum, byNum=byNum, brNum=brNum, buNum=buNum, pDecay=pDecay, tDecay=tDecay, corNum=corNum)
+	simulation.landscape.output(outputDir)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -108,74 +109,30 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 	if args.noui:
-		for times in range(10):
-			print ("times = {}".format(times))
-			# ma
-			resetParams()
-			for i in [5, 10, 15, 20, 50]:
-				maNum = i
-				outputDir = "output(s=100,{}={})".format("ma", i)
-				run_simulation_noui()
-			# mi
-			resetParams()
-			for i in [100, 200, 400, 800, 1000]:
-				miNum = i
-				outputDir = "output(s=100,{}={})".format("mi", i)
-				run_simulation_noui()
-			# by
-			resetParams()
-			for i in [800, 1000, 2000, 4000, 8000]:
-				byNum = i
-				outputDir = "output(s=100,{}={})".format("by", i)
-				run_simulation_noui()
-			# br
-			resetParams()
-			for i in [5000]:
-				brNum = i
-				outputDir = "output(s=100,{}={})".format("br", i)
-				run_simulation_noui()
-			# bu
-			resetParams()
-			for i in [100, 200, 400, 700, 1000]:
-				buNum = i
-				outputDir = "output(s=100,{}={})".format("bu", i)
-				run_simulation_noui()
-			# r1
-			resetParams()
-			for i in [1, 2, 3, 4, 5]:
-				r1 = i
-				outputDir = "output(s=100,{}={})".format("r1", i)
-				run_simulation_noui()
+		for times in range(20):
 			# r2
 			resetParams()
-			for i in [3, 5, 7, 9, 10]:
+			for i in [3]:
 				r2 = i
 				outputDir = "output(s=100,{}={})".format("r2", i)
 				run_simulation_noui()
-			# r3
+
+		for times in range(20):
+			# r2
 			resetParams()
-			for i in [5, 7, 10, 15, 20]:
-				r3 = i
-				outputDir = "output(s=100,{}={})".format("r3", i)
+			for i in [4]:
+				r2 = i
+				outputDir = "output(s=100,{}={})".format("r2", i)
 				run_simulation_noui()
-			# dp
+
+		for times in range(10):
+			# r2
 			resetParams()
-			for i in [0.25, 0.5, 0.75, 0.9, 1]:
-				pDecay = i
-				outputDir = "output(s=100,{}={})".format("dp", i)
+			for i in [7]:
+				r2 = i
+				outputDir = "output(s=100,{}={})".format("r2", i)
 				run_simulation_noui()
-			# dt
-			resetParams()
-			for i in [0.25, 0.5, 0.75, 0.9, 1]:
-				tDecay = i
-				outputDir = "output(s=100,{}={})".format("dt", i)
-				run_simulation_noui()
-			# co
-			resetParams()
-			for i in [1, 3, 5, 7, 9]:
-				co = i
-				outputDir = "output(s=100,{}={})".format("co", i)
-				run_simulation_noui()
+			
 	else:
 		if args.output:
 			outputDir = args.output
