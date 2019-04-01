@@ -51,31 +51,45 @@ class Landscape:
 				for j in range(y):
 					node = self.array[i][j]
 					if i > 0:
-						node.add_adjacent(self.array[i - 1][j])
 						node.add_neighbor(self.array[i - 1][j])
 					if j > 0:
-						node.add_adjacent(self.array[i][j - 1])
 						node.add_neighbor(self.array[i][j - 1])
 					if i + 1 < x:
-						node.add_adjacent(self.array[i + 1][j])
 						node.add_neighbor(self.array[i + 1][j])
 					if j + 1 < y:
-						node.add_adjacent(self.array[i][j + 1])
 						node.add_neighbor(self.array[i][j + 1])
 					if i > 0 and j > 0:
-						node.add_adjacent(self.array[i - 1][j - 1])
 						node.add_neighbor(self.array[i - 1][j - 1])		
 					if i + 1 < x and j > 0:
-						node.add_adjacent(self.array[i + 1][j - 1])
 						node.add_neighbor(self.array[i + 1][j - 1])
 					if i > 0 and j + 1 < y:
-						node.add_adjacent(self.array[i - 1][j + 1])
 						node.add_neighbor(self.array[i - 1][j + 1])
 					if i + 1 < x and j + 1 < y:
-						node.add_adjacent(self.array[i + 1][j + 1])
 						node.add_neighbor(self.array[i + 1][j + 1])
 
+			self.set_adjacents()
 			self.init_geography()
+
+	def set_adjacents(self):
+		for i in range(self.x):
+			for j in range(self.y):
+				node = self.array[i][j]
+				if i > 0:
+					node.add_adjacent(self.array[i - 1][j])
+				if j > 0:
+					node.add_adjacent(self.array[i][j - 1])
+				if i + 1 < self.x:
+					node.add_adjacent(self.array[i + 1][j])
+				if j + 1 < self.y:
+					node.add_adjacent(self.array[i][j + 1])
+				if i > 0 and j > 0:
+					node.add_adjacent(self.array[i - 1][j - 1])
+				if i + 1 < self.x and j > 0:
+					node.add_adjacent(self.array[i + 1][j - 1])
+				if i > 0 and j + 1 < self.y:
+					node.add_adjacent(self.array[i - 1][j + 1])
+				if i + 1 < self.x and j + 1 < self.y:
+					node.add_adjacent(self.array[i + 1][j + 1])
 					
 	def add_agent(self, agent):
 		self.array[agent.x][agent.y].add_agent(agent)

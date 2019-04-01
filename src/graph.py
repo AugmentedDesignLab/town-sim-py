@@ -49,8 +49,8 @@ def run_simulation_noui():
 	print("start new simulation")
 	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
 	for cycle in range(50):
-		if cycle % 10 == 0:
-			print("cycle {}".format(cycle))
+		# if cycle % 10 == 0:
+		# 	print("cycle {}".format(cycle))
 		p = np.sum(simulation.landscape.prosperity)
 		phase = 1
 		for i in range(5):
@@ -109,29 +109,7 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 	if args.noui:
-		for times in range(20):
-			# r2
-			resetParams()
-			for i in [3]:
-				r2 = i
-				outputDir = "output(s=100,{}={})".format("r2", i)
-				run_simulation_noui()
-
-		for times in range(20):
-			# r2
-			resetParams()
-			for i in [4]:
-				r2 = i
-				outputDir = "output(s=100,{}={})".format("r2", i)
-				run_simulation_noui()
-
-		for times in range(10):
-			# r2
-			resetParams()
-			for i in [7]:
-				r2 = i
-				outputDir = "output(s=100,{}={})".format("r2", i)
-				run_simulation_noui()
+		run_simulation_noui()
 			
 	else:
 		if args.output:
