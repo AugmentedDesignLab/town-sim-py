@@ -37,10 +37,11 @@ class Landscape:
 
 		self.array = [[Node(i, j, self, r1, r2, r3, r4) for j in range(y)] for i in range(x)]
 		self.nodes = [node for row in self.array for node in row]
+		self.loadedfilename = None
 
 		if load_filename is not None:
+			self.loadedfilename = load_filename[load_filename.rfind("/") + 1:load_filename.rfind(".p")]
 			self.load_state(load_filename)
-			print('loaded state')
 		else:
 			self.prosperity = np.zeros((x, y)) 
 			self.traffic = np.zeros((x, y)) 
@@ -393,6 +394,9 @@ class Landscape:
 				img[n.x + self.x, n.y] = PLOT_color
 
 		img = cv2.resize(img, (1000, 2000))
+		output_im = img[:1000, :1000]
+		cv2.imwrite("{}.png".format(self.loadedfilename), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
+		
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
 		return img
@@ -458,12 +462,13 @@ class Landscape:
 
 	def load_state(self, filename):
 		[nodearray, self.prosperity, self.traffic, roadsegments] = pickle.load(open(filename, "rb"))
+		self.roads = []
 		for i in range(len(nodearray)):
 			for j in range(len(nodearray[0])):
 				ntype = nodearray[i][j]
 				self.array[i][j].type = ntype
 				if Type.MAJOR_ROAD in ntype or Type.MINOR_ROAD in ntype or Type.BRIDGE in ntype or Type.BYPASS in ntype or Type.HIGHWAY in ntype:
-					self.roadnodes.append(self.array[i][j])
+					self.roads.append(self.array[i][j])
 					# need to make roadnodes neighbor to each other to continue running, but not needed for simply reconstructing
 		for rs in roadsegments:
 			(x1, y1, x2, y2) = rs
