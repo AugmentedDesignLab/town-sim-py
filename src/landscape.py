@@ -431,10 +431,13 @@ class Landscape:
 				rs1.merge(rs2, turn, self.roadsegments)
 		with open(filename, "w") as file:
 			for rs in self.roadsegments:
-				print("{},{},{}".format(
+				type = "minor"
+				if Type.MAJOR_ROAD in rs.rnode1.type or Type.MAJOR_ROAD in rs.rnode2.type:
+					type = "major"
+				print("{},{},{},{}".format(
 					(rs.rnode1.x, rs.rnode1.y),
 					(rs.rnode2.x, rs.rnode2.y),
-					rs.shape), file=file)
+					rs.shape, type), file=file)
 		print("Output saved to file.")
 
 		'''

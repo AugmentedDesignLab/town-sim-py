@@ -30,7 +30,7 @@ def resetParams():
 	phase2threshold = 200000
 	phase3threshold = 80000
 	gridSize = 100
-	outputDir = None
+	outputDir = "."
 	maNum = 10
 	miNum = 400
 	byNum = 2000
@@ -49,8 +49,6 @@ def run_simulation_noui():
 	print("start new simulation")
 	simulation = Simulation(size=gridSize, r1=r1, r2=r2, r3=r3, r4=r4)
 	for cycle in range(50):
-		# if cycle % 10 == 0:
-		# 	print("cycle {}".format(cycle))
 		p = np.sum(simulation.landscape.prosperity)
 		phase = 1
 		for i in range(5):
@@ -92,7 +90,7 @@ if __name__ == "__main__":
 	phase2threshold = 200000
 	phase3threshold = 80000
 	gridSize = 100
-	outputDir = None
+	outputDir = "."
 	maNum = 10
 	miNum = 400
 	byNum = 2000
