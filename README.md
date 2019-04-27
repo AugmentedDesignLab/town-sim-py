@@ -1,8 +1,13 @@
 # town-sim-py
-Ver. 1.0
+Ver. 1.1
 Town growth simulator that creates road networks.
 
 Outputs a text file which contains lists of roads, and if the road is curved, a list of its turning points. 
+
+## Expressive Range
+Below are examples of the expressive range exposed by some of the parameters.
+
+<img src="screenshots/ExpressiveRange.png" alt="expressive range screenshot" width="600"/>
 
 ## Note
 Use `-h` for up-to-date commandline options. Do not use `--noui`; it is out of sync.
