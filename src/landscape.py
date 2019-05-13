@@ -132,8 +132,8 @@ class Landscape:
 		self.set_type_road(points, Type.MAJOR_ROAD)
 		middle_nodes = []
 		if len(points) > 2:
-			middle_nodes = points[1:len(points)-2]
-		self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2], middle_nodes, Type.MAJOR_ROAD))
+			middle_nodes = points[1:len(points)-1]
+		self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2], middle_nodes, Type.MAJOR_ROAD, self.roadsegments))
 		for (x, y) in points:
 			adjacent = self.array[x][y].adjacent
 			adjacent = [s for n in adjacent for s in n.adjacent]
@@ -254,18 +254,20 @@ class Landscape:
 		self.roadnodes.append(node2)
 		middle_nodes = []
 		if len(points) > 2:
-			middle_nodes = points[1:len(points)-2]
+			middle_nodes = points[1:len(points)-1]
 
-		self.roadsegments.add(RoadSegment(node, node2, middle_points, Type.MAJOR_ROAD))
+		self.roadsegments.add(RoadSegment(node, node2, middle_points, Type.BYPASS, self.roadsegments))
 
 		self.set_type_bypass(points, node, node2)
+		
+		print("new bypass")
 		
 		# bypass is not set to break if it intersect with normal another road
 		# this type is not very common anyway, but it is better to think of them as elevated highways which 
 		# logically does not intersect with all the roads it passes
 	
 	def set_new_road(self, x1, y1, road_type, leave_lot=False, correction=5):
-		check1 = False
+		check1 = True #?
 		check2 = True
 	
 		node = self.array[x1][y1]
@@ -290,7 +292,7 @@ class Landscape:
 		
 		middle_nodes = []
 		if len(points) > 2:
-			middle_nodes = points[1:len(points)-2]
+			middle_nodes = points[1:len(points)-1]
 		
 		if check1:
 			n1 = self.array[x1][y1]
@@ -305,7 +307,7 @@ class Landscape:
 					rs.split(n2, self.roadsegments, self.roadnodes)
 					break
 		
-		self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2], middle_nodes, road_type))
+		self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2], middle_nodes, road_type, self.roadsegments))
 				
 		self.set_type_road(points, road_type)
 
@@ -443,6 +445,7 @@ class Landscape:
 		filename = "{}/{}.{}".format(filedir, currentDT, filename)	
 
 		print("Calculating nodes...")
+		
 		rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
 		counted = Counter()
 		for rn in self.roadnodes:
@@ -455,13 +458,14 @@ class Landscape:
 		print("Reconstructing roads...")
 		for turn in turns:
 			rsarray = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
-			if len(rsarray) > 2:
+			if len(rsarray) == 2:
 				rs1 = rsarray[0]
 				rs2 = rsarray[1]
 				rs1.merge(rs2, turn, self.roadsegments, self.roadnodes)
+		
 		with open(filename, "w") as file:
 			for rs in self.roadsegments:
-				type = "minor" if rs.type == Type.MAJOR_ROAD else "major"
+				type = "minor" if rs.type == Type.MINOR_ROAD else "major"
 
 				print("{},{},{},{}".format(
 					(rs.rnode1.x, rs.rnode1.y),
@@ -505,4 +509,4 @@ class Landscape:
 		for rs in roadsegments:
 			(x1, y1, x2, y2) = rs
 			# this puts nothing as in-between nodes ... not a complete reconstruction of state. Code can be improved
-			self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2], []))
+			self.roadsegments.add(RoadSegment(self.array[x1][y1], self.array[x2][y2], [], Type.MINOR_ROAD, self.roadsegments))

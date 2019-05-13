@@ -5,7 +5,7 @@
 from util import Type
 
 class RoadSegment:
-	def __init__(self, rnode1, rnode2, nodes, type):
+	def __init__(self, rnode1, rnode2, nodes, type, rs_list):
 		self.rnode1 = rnode1
 		self.rnode2 = rnode2
 		self.type = type
@@ -42,7 +42,7 @@ class RoadSegment:
 		nodes1 = self.nodes[:i]
 		nodes2 = self.nodes[i+1:]
 
-		new_rs = RoadSegment(node, self.rnode2, nodes2, self.type)
+		new_rs = RoadSegment(node, self.rnode2, nodes2, self.type, roadnodes)
 		rs_list.add(new_rs)
 
 		self.nodes = nodes1
