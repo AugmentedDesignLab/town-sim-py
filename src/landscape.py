@@ -425,8 +425,8 @@ class Landscape:
 				img[n.x + self.x, n.y] = PLOT_color
 
 		img = cv2.resize(img, (1000, 2000))
-		output_im = img[:1000, :1000]
-		cv2.imwrite("{}.png".format(self.loadedfilename), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
+		#output_im = img[:1000, :1000]
+		#cv2.imwrite("{}.png".format(self.loadedfilename), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
 		
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
