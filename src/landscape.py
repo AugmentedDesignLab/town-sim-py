@@ -13,6 +13,7 @@ from PIL import Image
 import random
 from scipy.interpolate import splrep, splev
 import sys
+import time
 
 from lot import Lot
 from node import Node
@@ -110,8 +111,10 @@ class Landscape:
 			for n in node.neighbors:
 				n.clear_type()
 				n.add_type(Type.WATER)
+		self.view(0, name='init_geography')
 
 		self.init_main_st(pts)
+		self.view(0, name='init_building')
 
 	def init_main_st(self, water_pts):
 		(x1, y1) = random.choice(water_pts)
@@ -371,7 +374,7 @@ class Landscape:
 			node.clear_type()
 			node.add_type(Type.CITY_GARDEN)
 
-	def view(self, step):
+	def view(self, step, name=None):
 		WATER_color = (167, 234, 255)
 		FOREST_color = (148, 184, 0)
 		GREEN_color = (196, 239, 85)
@@ -412,27 +415,97 @@ class Landscape:
 					img[i, j] = BROWN_color 
 
 				# if len(self.array[i][j].agents) > 0:
-				# 	img[i + self.x, j, 2] = 255
+					# img[i + self.x, j, 2] = len(self.array[i][j].agents) * 50
 
-				if self.array[i][j].prosperity() > 0:
-					img[i + self.x, j, 0] = self.array[i][j].prosperity() * 5
+				# if self.array[i][j].prosperity() > 0:
+					# img[i + 2 * self.x, j, 0] = self.array[i][j].prosperity() * 5
 
-				if self.array[i][j].traffic() > 0:
-					img[i + self.x, j, 1] = self.array[i][j].traffic() * 5
+				# if self.array[i][j].traffic() > 0:
+					# img[i + 3 * self.x, j, 1] = self.array[i][j].traffic() * 5
 
 		for lot in self.lots:
 			for n in lot.border:
 				img[n.x + self.x, n.y] = PLOT_color
 
 		img = cv2.resize(img, (1000, 2000))
-		#output_im = img[:1000, :1000]
-		#cv2.imwrite("{}.png".format(self.loadedfilename), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
+		output_im = img[:1000, :1000]
+		if (name != None):
+			cv2.imwrite("{}.png".format(name), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
+		else:
+			cv2.imwrite("main_{}.png".format(time.time()), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
+            
+		# output_im = img[1000:2000, :1000]
+		# cv2.imwrite("agent_{}.png".format(time.time()), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
+        
+		# output_im = img[2000:3000, :1000]
+		# cv2.imwrite("prosperity_{}.png".format(time.time()), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
+        
+		# output_im = img[3000:4000, :1000]
+		# cv2.imwrite("traffic_{}.png".format(time.time()), cv2.cvtColor(output_im, cv2.COLOR_RGB2BGR))
+
 		
 		cv2.putText(img, str(step), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
 		return img
 
-	def output(self, filedir):
+	# def output(self, filedir):
+	# 	if not os.path.isdir(filedir):
+	# 		os.mkdir(filedir)
+	# 	print("saving state...")
+	# 	currentDT = datetime.datetime.now()
+	# 	currentDT = currentDT.strftime("%Y%m%d%H%M%S")
+	# 	self.save_state("{}/{}.p".format(filedir, currentDT))
+		
+	# 	filename = "output.txt"
+	# 	stats_filename = "{}/stats_{}.{}".format(filedir, currentDT, filename)
+	# 	filename = "{}/{}.{}".format(filedir, currentDT, filename)	
+
+	# 	print("Calculating nodes...")
+		
+	# 	rns = [(rn.x, rn.y) for rn in set(self.roadnodes)]
+	# 	counted = Counter()
+	# 	for rn in self.roadnodes:
+	# 		counted[rns.index((rn.x, rn.y))] += 1
+	# 	print("Calculating turns...")
+	# 	turns = set()
+	# 	for (x, y) in rns:
+	# 		if counted[rns.index((x, y))] == 2:
+	# 			turns.add(self.array[x][y])
+	# 	print("Reconstructing roads...")
+	# 	for turn in turns:
+	# 		rsarray = [rs for rs in self.roadsegments if rs.rnode1 == turn or rs.rnode2 == turn]
+	# 		if len(rsarray) == 2:
+	# 			rs1 = rsarray[0]
+	# 			rs2 = rsarray[1]
+	# 			rs1.merge(rs2, turn, self.roadsegments, self.roadnodes)
+		
+	# 	with open(filename, "w") as file:
+	# 		for rs in self.roadsegments:
+	# 			type = "minor" if rs.type == Type.MINOR_ROAD else "major"
+
+	# 			print("{},{},{},{}".format(
+	# 				(rs.rnode1.x, rs.rnode1.y),
+	# 				(rs.rnode2.x, rs.rnode2.y),
+	# 				rs.shape, type), file=file)
+	# 	print("Output saved to file.")
+
+	# 	'''
+	# 	space syntax analysis
+	# 	=====================
+	# 	k local neighborhood: 1 < k < l
+	# 	l maximum "shortest distance"
+	# 	'''
+	# 	with open(stats_filename, "w") as file:
+	# 		for junction in set([rs.rnode1 for rs in self.roadsegments] + [rs.rnode2 for rs in self.roadsegments]):
+	# 			connectivity = junction.get_connectivity(self.roadsegments)
+	# 			local_depth = junction.get_local_depth(self.roadsegments, 3)
+	# 			global_depth = junction.get_global_depth(self.roadsegments)
+	# 			print("({}, {}):  	connectivity: {},  	local depth: {},  	global depth: {}".format(
+	# 				junction.x, junction.y, connectivity, local_depth, global_depth), file=file)
+	# 	print("Stats saved to file.")
+	# 	return currentDT
+
+	def output(self, filedir): # with filler junctions
 		if not os.path.isdir(filedir):
 			os.mkdir(filedir)
 		print("saving state...")
@@ -467,10 +540,34 @@ class Landscape:
 			for rs in self.roadsegments:
 				type = "minor" if rs.type == Type.MINOR_ROAD else "major"
 
-				print("{},{},{},{}".format(
-					(rs.rnode1.x, rs.rnode1.y),
-					(rs.rnode2.x, rs.rnode2.y),
-					rs.shape, type), file=file)
+				if len(rs.shape) > 0:
+					(rnode1x, rnode1y) = (rs.rnode1.x, rs.rnode1.y)
+					(rnode2x, rnode2y) = (rs.rnode1.x, rs.rnode1.y)
+
+					print("{},{},{},{}".format(
+						(rs.rnode1.x, rs.rnode1.y),
+						rs.shape[0],
+						[], type), file=file)
+
+					for i in range(len(rs.shape)-1):
+						(tempx, tempy) = rs.shape[i]
+						(tempx2, tempy2) = rs.shape[i+1]
+						print("{},{},{},{}".format(
+							(tempx, tempy),
+							(tempx2, tempy2),
+							[], type), file=file)
+
+					print("{},{},{},{}".format(
+						rs.shape[len(rs.shape)-1],
+						(rs.rnode2.x, rs.rnode2.y)
+						[], type), file=file)
+
+				else:
+					for (x, y) in rs.shape:
+						print("{},{},{},{}".format(
+							(rs.rnode1.x, rs.rnode1.y),
+							(rs.rnode2.x, rs.rnode2.y),
+							rs.shape, type), file=file)
 		print("Output saved to file.")
 
 		'''
