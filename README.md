@@ -6,7 +6,7 @@ Outputs a text file which contains lists of roads, and if the road is curved, a 
 
 See paper [here](https://www.pcgworkshop.com/wp-content/uploads/2019/08/PCG2019_paper_7.pdf).
 
-See presentation slides [here](Townsim_PCG_presentation.pdf).
+See presentation slides [here](TownSim_PCG_presentation.pdf).
 
 ## Expressive Range
 Below are examples of the expressive range exposed by some of the parameters.
